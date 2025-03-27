@@ -8,7 +8,7 @@ console.log('-----------------------------------');
 
 // Verify environment variables
 console.log('🔍 Checking environment configuration...');
-const requiredEnvVars = ['CHATGPT_API_KEY', 'GITHUB_TOKEN', 'DRAWIO_PATH'];
+const requiredEnvVars = ['CHATGPT_API_KEY', 'GITHUB_TOKEN'];
 const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
 
 if (missingEnvVars.length > 0) {
@@ -17,31 +17,6 @@ if (missingEnvVars.length > 0) {
   process.exit(1);
 }
 console.log('✅ Environment configuration verified');
-
-// Verify draw.io is accessible
-console.log('🔍 Checking draw.io installation...');
-try {
-  const drawioPath = process.env.DRAWIO_PATH;
-  if (process.platform === 'win32' && !drawioPath.endsWith('.exe')) {
-    process.env.DRAWIO_PATH = `${drawioPath}.exe`;
-    console.log(`Updated DRAWIO_PATH to include .exe extension: ${process.env.DRAWIO_PATH}`);
-  }
-  
-  // Test if draw.io is accessible
-  const testCommand = process.platform === 'win32' 
-    ? `"${process.env.DRAWIO_PATH}" --help` 
-    : `"${process.env.DRAWIO_PATH}" --help`;
-  
-  try {
-    execSync(testCommand, { stdio: 'ignore' });
-    console.log('✅ draw.io is accessible');
-  } catch (error) {
-    console.warn('⚠️ Could not execute draw.io directly, will try to use it via full path during execution');
-  }
-} catch (error) {
-  console.error('❌ Error verifying draw.io:', error.message);
-  console.log('⚠️ Continuing without draw.io validation - this may cause issues later');
-}
 
 // Get target project path (optional argument)
 const targetProjectPath = process.argv[2] || path.resolve(process.cwd(), '..');
@@ -89,7 +64,7 @@ async function runPRChecker() {
     const dependencyScan = require('./review/dependencyScan');
     const securityCheck = require('./review/securityCheck');
     const renderMermaid = require('./visual/renderMermaid');
-    const renderDrawio = require('./visual/renderDrawio');
+    const renderDiagrams = require('./visual/renderDrawio'); // We're keeping the filename for compatibility
     const postPRComment = require('./review/postPRComment');
     
     console.log('🔍 Analyzing file changes...');
@@ -124,7 +99,7 @@ async function runPRChecker() {
       subsystems
     });
     
-    const drawioDiagrams = await renderDrawio.renderDiagrams({
+    const schemaDiagrams = await renderDiagrams.renderDiagrams({
       schema,
       flowcharts
     });
@@ -139,7 +114,7 @@ async function runPRChecker() {
       dependencyIssues,
       securityIssues,
       mermaidDiagrams,
-      drawioDiagrams,
+      schemaDiagrams,
       targetPath: targetProjectPath,
       changedFiles
     });

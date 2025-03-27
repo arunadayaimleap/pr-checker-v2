@@ -178,10 +178,10 @@ function formatSubsystemSection(subsystems, mermaidDiagrams) {
 /**
  * Formats the schema section
  * @param {Object} schema - Schema data
- * @param {Array<Object>} drawioDiagrams - Draw.io diagrams
+ * @param {Array<Object>} schemaDiagrams - Schema diagrams
  * @returns {string} Formatted schema section
  */
-function formatSchemaSection(schema, drawioDiagrams) {
+function formatSchemaSection(schema, schemaDiagrams) {
   let section = `## 🧩 Schema Diagram\n\n`;
   
   if (schema.diagramType === 'none') {
@@ -190,12 +190,12 @@ function formatSchemaSection(schema, drawioDiagrams) {
   
   section += `${schema.description}\n\n`;
   
-  // Show draw.io diagram if available
-  const schemaDiagram = drawioDiagrams?.find(d => d.type === 'schema');
+  // Show rendered image if available
+  const schemaDiagram = schemaDiagrams?.find(d => d.type === 'schema');
   if (schemaDiagram && schemaDiagram.imageData) {
     section += `![Schema Diagram](data:image/png;base64,${schemaDiagram.imageData})\n\n`;
   } else if (schema.mermaid && schema.mermaid.content) {
-    // Show mermaid diagram as fallback
+    // Fall back to Mermaid.js code block
     section += "```mermaid\n" + schema.mermaid.content + "\n```\n\n";
   }
   
@@ -205,10 +205,10 @@ function formatSchemaSection(schema, drawioDiagrams) {
 /**
  * Formats the flowchart section
  * @param {Array<Object>} flowcharts - Flowchart data
- * @param {Array<Object>} drawioDiagrams - Draw.io diagrams
+ * @param {Array<Object>} schemaDiagrams - Schema diagrams
  * @returns {string} Formatted flowchart section
  */
-function formatFlowchartSection(flowcharts, drawioDiagrams) {
+function formatFlowchartSection(flowcharts, schemaDiagrams) {
   if (!flowcharts || flowcharts.length === 0) return '';
   
   let section = `## 🔄 Flowcharts\n\n`;
@@ -235,16 +235,16 @@ function formatFlowchartSection(flowcharts, drawioDiagrams) {
         section += `${flowchart.description}\n\n`;
       }
       
-      // Look for a rendered draw.io diagram
-      const flowDrawio = drawioDiagrams?.find(d => 
+      // Look for a rendered diagram
+      const flowDiagram = schemaDiagrams?.find(d => 
         d.type === 'flowchart' && 
         d.title?.includes(flowchart.name)
       );
       
-      if (flowDrawio && flowDrawio.imageData) {
-        section += `![${flowchart.name}](data:image/png;base64,${flowDrawio.imageData})\n\n`;
+      if (flowDiagram && flowDiagram.imageData) {
+        section += `![${flowchart.name}](data:image/png;base64,${flowDiagram.imageData})\n\n`;
       } else if (flowchart.mermaidCode) {
-        // Fall back to mermaid code
+        // Fall back to Mermaid code
         section += "```mermaid\n" + flowchart.mermaidCode + "\n```\n\n";
       }
     });
@@ -290,7 +290,7 @@ function formatCodeSmellsSection(smells) {
         section += `  - *Lines: ${smell.lineNumbers.join(', ')}*\n`;
       }
       
-      if (smell.suggestions && smell.suggestions.length > 0) {
+      if (smell.suggestions && smellsuggestions.length > 0) {
         section += `  - *Suggestion: ${smell.suggestions[0]}*\n`;
       }
     });

@@ -18,7 +18,7 @@ Build a GitHub-integrated PR reviewer that uses AI to:
 - 🔁 Show visual before/after diffs
 - 🧬 Extract procedural flowcharts
 - 📂 Render a directory tree of changed files
-- 🧠 Classify subsystems (e.g., “Auth Layer”)
+- 🧠 Classify subsystems (e.g., "Auth Layer")
 - 🚨 Flag code smells (e.g., god objects, circular deps)
 - 🧰 Scan dependencies for vulnerabilities
 - 🧠 Post markdown + visual feedback directly on the PR
@@ -33,11 +33,11 @@ Build a GitHub-integrated PR reviewer that uses AI to:
 | 🧱 Merged Schema Diagram    | Combined class/module diagram for all changed files                         |
 | 🔁 File-by-File Diff        | Show old vs new structure for each file                                     |
 | 🔃 Flowchart Extraction     | Extract flowcharts for procedural code                                      |
-| 📂 Directory Tree           | Mermaid-based or Markdown folder/file view                                 |
+| 📂 Directory Tree           | Mermaid-based folder/file view                                              |
 | 🧠 Subsystem Suggestions    | Classify files into architectural zones (e.g., "Data Layer")                |
 | 🚨 Code Smell Detection     | Detect issues like too many responsibilities, excessive nesting             |
 | 🧰 Dependency Scanner       | Warn about deprecated or vulnerable packages in `package.json`, etc.        |
-| 🛡️ Security Risk Detection  | Flag risky code patterns or secrets                                           |
+| 🛡️ Security Risk Detection  | Flag risky code patterns or secrets                                         |
 | 💬 PR Comment Formatter     | Posts AI-powered review + diagrams to the pull request                      |
 
 ---
@@ -48,8 +48,8 @@ Build a GitHub-integrated PR reviewer that uses AI to:
 |----------------|----------------------------|
 | GitHub Actions | Trigger on PR events       |
 | AI Model       | OpenAI GPT-4 / Claude / OpenRouter |
-| Diagrams       | Mermaid + draw.io XML      |
-| Rendering      | Puppeteer (Mermaid), draw.io CLI |
+| Diagrams       | Mermaid.js for GitHub-compatible diagrams |
+| Rendering      | Puppeteer for image generation |
 | Language       | Node.js + npm              |
 | Auth           | GitHub token + ChatGPT/OpenRouter API key |
 
@@ -101,7 +101,6 @@ Copy `.env.example` to `.env` and add your keys:
 ```env
 CHATGPT_API_KEY=your_openai_or_openrouter_key
 GITHUB_TOKEN=your_github_token
-DRAWIO_PATH=draw.io
 ```
 
 ---
@@ -120,11 +119,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: |
-          git clone https://github.com/YOUR-ORG/github-pr-checker-v2-full pr-checker
-          cd pr-checker
-          npm install
-          node src/index.js
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - run: npm install
+      - run: node src/index.js
 ```
 
 ---
@@ -161,7 +163,7 @@ Use `jest` or `mocha` with mocks and test file fixtures.
 4. Watch workflow trigger under **Actions**.
 5. Confirm PR comment includes:
    - ✅ Summary
-   - ✅ Merged schema image
+   - ✅ Merged schema diagram
    - ✅ Subsystem tags
    - ✅ Smell flags
    - ✅ Directory structure
