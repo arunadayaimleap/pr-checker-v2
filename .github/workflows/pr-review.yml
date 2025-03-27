@@ -1,0 +1,30 @@
+name: 🧠 Visual PR Review Bot
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  review:
+    name: 🧠 Analyze PR and Post Diagrams
+    runs-on: ubuntu-latest
+
+    env:
+      CHATGPT_API_KEY: ${{ secrets.CHATGPT_API_KEY }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DRAWIO_PATH: draw.io
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v3
+
+      - name: 📦 Clone Visual PR Checker
+        run: |
+          git clone https://github.com/YOUR-ORG/github-pr-checker-visual-enhanced pr-checker
+          cd pr-checker
+          npm install
+
+      - name: 🧠 Run PR Checker
+        run: |
+          cd pr-checker
+          node src/index.js
