@@ -12,19 +12,31 @@ jobs:
     env:
       CHATGPT_API_KEY: ${{ secrets.CHATGPT_API_KEY }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      DRAWIO_PATH: draw.io
 
     steps:
       - name: 📥 Checkout Code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch all history for proper diff analysis
 
-      - name: 📦 Clone Visual PR Checker
-        run: |
-          git clone https://github.com/YOUR-ORG/github-pr-checker-visual-enhanced pr-checker
-          cd pr-checker
-          npm install
-
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'npm'  # Cache npm dependencies
+          
+      - name: 📦 Install Dependencies
+        run: npm install
+        
       - name: 🧠 Run PR Checker
-        run: |
-          cd pr-checker
-          node src/index.js
+        run: node src/index.js
+        
+      - name: 📊 Upload Artifacts (if available)
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: pr-review-artifacts
+          path: |
+            *.png
+            *.md
+          retention-days: 7

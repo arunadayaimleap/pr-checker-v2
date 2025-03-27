@@ -124,8 +124,15 @@ async function runPRChecker() {
       console.log('🚀 Posting comment to PR...');
       await postPRComment.postComment(comment);
     } else {
-      console.log('💻 Running in local mode, displaying comment:');
-      console.log(comment);
+      console.log('💻 Running in local mode');
+      // Save the comment to a file for local testing
+      const outputPath = path.join(process.cwd(), 'pr-review-output.md');
+      await fs.writeFile(outputPath, comment);
+      console.log(`📝 Comment saved to ${outputPath}`);
+      console.log('Preview of the comment:');
+      console.log('---------------------------------------');
+      console.log(comment.substring(0, 500) + '...');
+      console.log('---------------------------------------');
     }
     
     console.log('✅ PR Checker completed successfully!');

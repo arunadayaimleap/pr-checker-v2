@@ -172,6 +172,30 @@ Use `jest` or `mocha` with mocks and test file fixtures.
 
 ---
 
+## 🧪 Local Testing
+
+You can test the PR Checker locally without GitHub Actions:
+
+1. Copy `.env.example` to `.env` and add your API keys
+2. Run the local test script:
+
+```bash
+# Install dependencies
+npm install
+
+# Run local test on a target project
+npm run test-local /path/to/your/target/project
+```
+
+This will:
+- Analyze the target project files
+- Generate a PR review comment
+- Save the output to `pr-review-output.md`
+
+Note: When running locally, the PR comment won't be posted to GitHub, but you'll see a preview of what would be posted.
+
+---
+
 ## 💬 Example PR Comment
 
 ```md

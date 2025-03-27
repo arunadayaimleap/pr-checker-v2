@@ -290,7 +290,7 @@ function formatCodeSmellsSection(smells) {
         section += `  - *Lines: ${smell.lineNumbers.join(', ')}*\n`;
       }
       
-      if (smell.suggestions && smellsuggestions.length > 0) {
+      if (smell.suggestions && smell.suggestions.length > 0) {
         section += `  - *Suggestion: ${smell.suggestions[0]}*\n`;
       }
     });
@@ -424,34 +424,44 @@ async function postComment(comment) {
       throw new Error('GitHub token not found.');
     }
     
+    let eventData;
     const eventPath = process.env.GITHUB_EVENT_PATH;
-    if (!eventPath) {
-      throw new Error('GitHub event path not found. Are you running in GitHub Actions?');
-    }
     
-    // Read the GitHub event data
-    const eventData = JSON.parse(await fs.readFile(eventPath, 'utf8'));
+    if (eventPath) {
+      // Running in GitHub Actions
+      eventData = JSON.parse(await fs.readFile(eventPath, 'utf8'));
+    } else {
+      // Running locally, use mock data
+      console.log('📌 Using mock PR data for local testing');
+      const { createMockPREvent } = require('../utils/mockPRData');
+      eventData = createMockPREvent();
+    }
     
     // Extract the repository and PR information
     const repo = eventData.repository.full_name;
     const prNumber = eventData.pull_request.number;
     
-    // Create a comment on the PR
-    const url = `https://api.github.com/repos/${repo}/issues/${prNumber}/comments`;
-    
-    await axios.post(
-      url,
-      { body: comment },
-      {
-        headers: {
-          'Authorization': `token ${token}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/vnd.github.v3+json'
+    // Create a comment on the PR if we're not in local testing mode
+    if (process.env.GITHUB_EVENT_PATH) {
+      const url = `https://api.github.com/repos/${repo}/issues/${prNumber}/comments`;
+      
+      await axios.post(
+        url,
+        { body: comment },
+        {
+          headers: {
+            'Authorization': `token ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github.v3+json'
+          }
         }
-      }
-    );
-    
-    console.log(`✅ Successfully posted comment to PR #${prNumber}`);
+      );
+      
+      console.log(`✅ Successfully posted comment to PR #${prNumber}`);
+    } else {
+      console.log(`✅ Would post comment to PR #${prNumber} in repo ${repo}`);
+      console.log('💡 Comment is saved to pr-review-output.md');
+    }
   } catch (error) {
     console.error('Error posting comment to PR:', error.message);
     throw error;
