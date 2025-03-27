@@ -11,7 +11,7 @@ jobs:
 
     env:
       CHATGPT_API_KEY: ${{ secrets.CHATGPT_API_KEY }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
     steps:
       - name: 📥 Checkout Code
@@ -27,4 +27,5 @@ jobs:
 
       - name: 🧠 Run PR Checker
         run: |
+          cd pr-checker
           node src/index.js
