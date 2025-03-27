@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: 📥 Checkout Code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch all history for proper diff analysis
 
       - name: 📦 Clone Visual PR Checker
         run: |
@@ -25,5 +27,4 @@ jobs:
 
       - name: 🧠 Run PR Checker
         run: |
-          cd pr-checker
           node src/index.js
