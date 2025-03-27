@@ -1,4 +1,5 @@
 const { callOpenAI } = require('./openAIClient');
+const path = require('path'); // Add path module import
 
 /**
  * Creates flowcharts for procedural code in changed files
