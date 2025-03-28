@@ -2,15 +2,20 @@
   "name": "github-pr-checker-v2",
   "version": "2.1.0",
   "main": "src/index.js",
+  "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "test-local": "node src/test-local.js"
+    "test-local": "node src/test-local.js",
+    "test-openrouter": "node src/tests/testOpenRouter.js",
+    "test-modules": "node src/tests/simple-module-test.js",
+    "test-api-direct": "node src/tests/simple-api-test.js"
   },
   "dependencies": {
     "axios": "^1.4.0",
     "dotenv": "^16.3.1",
     "fs-extra": "^11.2.0",
     "adm-zip": "^0.5.10",
-    "puppeteer": "^21.3.0"
+    "puppeteer": "^21.3.0",
+    "node-fetch": "^3.3.0"
   }
 }

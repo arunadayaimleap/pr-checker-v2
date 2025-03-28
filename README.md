@@ -79,7 +79,8 @@ github-pr-checker-v2/
 ├── .github/workflows/pr-review.yml
 ├── .env.example
 ├── package.json
-└── README.md
+├── README.md
+└── README-PR-Checker-V2.md
 ```
 
 ---
@@ -196,6 +197,31 @@ Note: When running locally, the PR comment won't be posted to GitHub, but you'll
 
 ---
 
+## AI Model
+
+This PR Checker uses **Microsoft Phi-3 Medium** through the OpenRouter API for code analysis, with fallbacks to other models if needed. The models are used in this priority order:
+
+1. Microsoft Phi-3 Medium (Primary)
+2. Google Gemini 2.5 Pro Experimental
+3. OpenAI GPT-3.5 Turbo
+4. Anthropic Claude 3 Haiku
+5. Meta Llama 3 8B
+6. Mistral 7B
+
+This approach ensures reliable code analysis even when specific models have rate limits or availability issues.
+
+## Testing OpenRouter API
+
+To verify that the OpenRouter API is working correctly with Microsoft Phi-3 Medium, run:
+
+```
+npm run test-openrouter
+```
+
+This will send a test request to the OpenRouter API using the Phi-3 model and display the response.
+
+---
+
 ## 💬 Example PR Comment
 
 ```md
@@ -249,3 +275,49 @@ src/
 - CLI dev mode + offline model support
 
 ---
+
+# PR Checker V2
+
+A tool for analyzing GitHub Pull Requests using AI.
+
+## Setup
+
+1. Clone the repository
+2. Create a `.env` file with the following variables:
+   ```
+   OPENROUTER_API_KEY=your_openrouter_api_key
+   GITHUB_TOKEN=your_github_token
+   ```
+3. Install dependencies:
+   ```
+   npm install
+   ```
+
+## Testing OpenRouter API
+
+To verify that the OpenRouter API is working correctly, run:
+
+```
+npm run test-openrouter
+```
+
+This will send a test request to the OpenRouter API and display the response.
+
+## Usage
+
+To start the PR checker:
+
+```
+npm start
+```
+
+For local testing:
+
+```
+npm run test-local
+```
+
+## API Keys
+
+- OpenRouter API: Get your key from [OpenRouter](https://openrouter.ai/)
+- GitHub Token: Generate a token from [GitHub Settings](https://github.com/settings/tokens)
