@@ -29,3 +29,9 @@ jobs:
         run: |
           cd pr-checker
           node src/index.js
+
+      - name: 📤 Upload PR Analysis Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-analysis-results
+          path: pr-checker/output  # Replace with the actual path where results are stored

@@ -1,0 +1,33 @@
+name: 🧪 PR Test Workflow
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  test-trigger:
+    name: Test PR Trigger
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        
+      - name: Output Test Message
+        run: |
+          echo "✅ PR Test Workflow Successfully Triggered!"
+          echo "🕒 Workflow executed at: $(date)"
+          echo "📝 PR Number: ${{ github.event.pull_request.number }}"
+          echo "👤 PR Author: ${{ github.event.pull_request.user.login }}"
+          
+      - name: Create Artifact with Run Info
+        run: |
+          mkdir -p ./pr-test-artifacts
+          echo "PR Test Workflow executed at $(date)" > ./pr-test-artifacts/run-info.txt
+          echo "PR #${{ github.event.pull_request.number }} by ${{ github.event.pull_request.user.login }}" >> ./pr-test-artifacts/run-info.txt
+          
+      - name: Upload Run Info
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-test-results
+          path: ./pr-test-artifacts
