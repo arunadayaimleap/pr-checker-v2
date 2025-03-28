@@ -8,7 +8,9 @@
     "test-local": "node src/test-local.js",
     "test-openrouter": "node src/tests/testOpenRouter.js",
     "test-modules": "node src/tests/simple-module-test.js",
-    "test-api-direct": "node src/tests/simple-api-test.js"
+    "test-api-direct": "node src/tests/simple-api-test.js",
+    "test-code-analysis": "node src/tests/code-analysis-test.js",
+    "test-phi3-security": "node src/tests/phi3-code-review.js"
   },
   "dependencies": {
     "axios": "^1.4.0",

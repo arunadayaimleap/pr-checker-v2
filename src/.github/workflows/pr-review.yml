@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      CHATGPT_API_KEY: ${{ secrets.CHATGPT_API_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
     steps:
@@ -19,19 +19,48 @@ jobs:
         with:
           fetch-depth: 0  # Fetch all history for proper diff analysis
 
-      - name: 📦 Clone Visual PR Checker
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: 📦 Clone PR Checker Repository
         run: |
           git clone https://github.com/arunadayaimleap/pr-checker-v2.git pr-checker
           cd pr-checker
           npm install
 
-      - name: 🧠 Run PR Checker
+      - name: 🧠 Run PR Analysis
         run: |
           cd pr-checker
-          node src/index.js
+          node src/index.js $GITHUB_WORKSPACE
+
+      - name: 💬 Post Analysis as PR Comment
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GH_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const analysisPath = './pr-checker/code-analysis-output.md';
+            
+            if (fs.existsSync(analysisPath)) {
+              const analysisContent = fs.readFileSync(analysisPath, 'utf8');
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `## 🤖 PR Analysis Results\n\n${analysisContent}`
+              });
+              
+              console.log('✅ Posted analysis as comment on PR');
+            } else {
+              console.log('⚠️ Analysis output file not found');
+            }
 
       - name: 📤 Upload PR Analysis Results
         uses: actions/upload-artifact@v4
         with:
           name: pr-analysis-results
-          path: pr-checker/output  # Replace with the actual path where results are stored
+          path: pr-checker/code-analysis-output.md
+          if-no-files-found: warn
