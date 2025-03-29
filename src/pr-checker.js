@@ -226,17 +226,30 @@ async function processAndRenderDiagrams(response, diagramType, outputDir, prNumb
       
       if (uploadResult.success) {
         console.log(`✅ Successfully uploaded to ImgBB: ${uploadResult.url}`);
+        console.log(`✅ Display URL: ${uploadResult.displayUrl}`);
         renderResult.imgbbUrl = uploadResult.displayUrl;
+        
+        // Validate the image URL format
+        if (!uploadResult.displayUrl.startsWith('http')) {
+          console.error(`❌ Invalid ImgBB URL format: ${uploadResult.displayUrl}`);
+          // Try using the direct URL instead
+          renderResult.imgbbUrl = uploadResult.url;
+          console.log(`⚠️ Falling back to direct URL: ${uploadResult.url}`);
+        }
         
         // Save first diagram section for combined comment
         if (i === 0) {
           // Get diagram explanation text (look for text after the first mermaid block)
           const diagramText = extractTextAfterMermaid(response.content, diagramCode);
           
-          // Always use ImgBB URL for consistent display in comments
-          result.firstDiagramSection = `![${diagramFilename}](${uploadResult.displayUrl})
+          // Create a simpler, directly visible image markdown
+          const imageUrl = renderResult.imgbbUrl;
+          result.firstDiagramSection = `![${diagramType.toLowerCase()}-diagram](${imageUrl})
 
 ${diagramText}`;
+          
+          // Log the exact markdown being used
+          console.log(`📋 Image markdown for ${diagramType}: ![${diagramType.toLowerCase()}-diagram](${imageUrl})`);
         }
       } else {
         console.error(`❌ Failed to upload to ImgBB: ${uploadResult.error}`);
@@ -255,7 +268,7 @@ ${diagramText}`;
     }
   }
   
-  // Process markdown to include rendered diagrams with ImgBB URLs
+  // Process markdown to include rendered diagrams with ImgBB URLs - with extra validation
   let processedMarkdown = response.content;
   for (let i = 0; i < mermaidDiagrams.length; i++) {
     const diagramCode = mermaidDiagrams[i];
@@ -263,10 +276,10 @@ ${diagramText}`;
     const renderResult = renderResults[i];
     
     if (renderResult && renderResult.success && renderResult.imgbbUrl) {
-      const imageMarkdown = `![${diagramType.toLowerCase()}-${i+1}](${renderResult.imgbbUrl})`;
+      // Use a consistent image name format with the diagram type
+      const imageMarkdown = `![${diagramType.toLowerCase()}-diagram-${i+1}](${renderResult.imgbbUrl})`;
       processedMarkdown = processedMarkdown.replace(mermaidBlock, imageMarkdown);
     }
-    // If upload failed, keep the original mermaid block
   }
   
   const processedPath = path.join(outputDir, `processed-${diagramType.toLowerCase()}.md`);
