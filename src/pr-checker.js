@@ -226,15 +226,22 @@ async function processAndRenderDiagrams(response, diagramType, outputDir, prNumb
       
       if (uploadResult.success) {
         console.log(`✅ Successfully uploaded to ImgBB: ${uploadResult.url}`);
-        renderResult.imgbbUrl = uploadResult.url; // Use direct URL instead of display URL
+        console.log(`📊 ImgBB response - Display URL: ${uploadResult.displayUrl}`);
+        
+        // Store both URLs for safety
+        renderResult.imgbbUrl = uploadResult.url;
+        renderResult.imgbbDisplayUrl = uploadResult.displayUrl;
         
         // Save first diagram section for combined comment
         if (i === 0) {
           // Get diagram explanation text (look for text after the first mermaid block)
           const diagramText = extractTextAfterMermaid(response.content, diagramCode);
           
-          // Use standard markdown with direct URL
-          result.firstDiagramSection = `![${diagramType.toLowerCase()}-diagram](${uploadResult.url})
+          // Try direct URL first
+          const imageUrl = uploadResult.url;
+          console.log(`📋 Using direct URL for ${diagramType} diagram: ${imageUrl}`);
+          
+          result.firstDiagramSection = `![${diagramType.toLowerCase()}-diagram](${imageUrl})
 
 ${diagramText}`;
         }
@@ -255,7 +262,15 @@ ${diagramText}`;
     }
   }
   
-  // Process markdown to include rendered diagrams with ImgBB URLs
+  // Enhanced debug info for the combined comment
+  if (result.firstDiagramSection) {
+    console.log(`📝 First diagram section for ${diagramType}:`);
+    console.log(result.firstDiagramSection.substring(0, 200) + '...');
+  } else {
+    console.log(`⚠️ No first diagram section for ${diagramType}`);
+  }
+  
+  // Process markdown to include rendered diagrams with ImgBB URLs - use always the same URL format
   let processedMarkdown = response.content;
   for (let i = 0; i < mermaidDiagrams.length; i++) {
     const diagramCode = mermaidDiagrams[i];
@@ -263,7 +278,7 @@ ${diagramText}`;
     const renderResult = renderResults[i];
     
     if (renderResult && renderResult.success && renderResult.imgbbUrl) {
-      // Use simple markdown format with direct URL
+      // Use the same URL format as in the combined comment for consistency
       const imageMarkdown = `![${diagramType.toLowerCase()}-diagram-${i+1}](${renderResult.imgbbUrl})`;
       processedMarkdown = processedMarkdown.replace(mermaidBlock, imageMarkdown);
     }

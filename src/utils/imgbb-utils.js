@@ -42,7 +42,12 @@ export async function uploadImageToImgBB(imagePath, name) {
       throw new Error(`ImgBB upload failed: ${data.error?.message || 'Unknown error'}`);
     }
 
-    // Return just the core information we need, with no transformations
+    // Log the response structure to help debug
+    console.log(`ImgBB response structure for ${name || path.basename(imagePath)}:`);
+    console.log(`URL: ${data.data.url}`);
+    console.log(`Display URL: ${data.data.display_url}`);
+    
+    // Always return consistent data
     return {
       success: true,
       url: data.data.url,
