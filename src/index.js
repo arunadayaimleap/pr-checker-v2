@@ -12,7 +12,7 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 console.log('🚀 Starting PR Checker');
 console.log('-----------------------------------');
 
-// Verify required environment variables
+// Check for required environment variables
 if (!process.env.OPENROUTER_API_KEY) {
   console.error('❌ Error: OPENROUTER_API_KEY not found in environment variables');
   console.error('Please set up your .env file with your OpenRouter API key');

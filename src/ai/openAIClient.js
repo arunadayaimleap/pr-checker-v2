@@ -7,10 +7,10 @@ const axios = require('axios');
  * @returns {Promise<string>} The AI response
  */
 async function callOpenAI(prompt, options = {}) {
-  const apiKey = process.env.CHATGPT_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY;
   
   if (!apiKey) {
-    throw new Error('OpenAI API key is not set');
+    throw new Error('OpenRouter API key is not set');
   }
   
   // Default options

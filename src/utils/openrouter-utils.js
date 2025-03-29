@@ -8,6 +8,13 @@ import fs from 'fs-extra';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
+// Check for necessary environment variables
+if (!process.env.OPENROUTER_API_KEY) {
+  console.error('❌ Error: OPENROUTER_API_KEY not found in environment variables');
+  console.error('Please set up your .env file with your OpenRouter API key');
+  process.exit(1);
+}
+
 // Sample code to analyze
 export const SAMPLE_CODE = `
 // User profile handler
@@ -214,16 +221,18 @@ export async function callModelWithPrompt(model, systemPrompt, userPrompt) {
       max_tokens: 1500  // Reduced from 2000 to avoid token limit errors
     };
     
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      'HTTP-Referer': 'https://github.com/pr-checker-v2',
+      'X-Title': 'PR Checker V2 - Model Test'
+    };
+    
     console.log(`📤 Sending request to OpenRouter API with model: ${model}`);
     
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'HTTP-Referer': 'https://github.com/pr-checker-v2',
-        'X-Title': 'PR Checker V2 - Model Test'
-      },
+      headers: headers,
       body: JSON.stringify(requestBody)
     });
     

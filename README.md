@@ -100,7 +100,7 @@ npm install
 Copy `.env.example` to `.env` and add your keys:
 
 ```env
-CHATGPT_API_KEY=your_openai_or_openrouter_key
+OPENROUTER_API_KEY=your_openrouter_api_key
 GITHUB_TOKEN=your_github_token
 ```
 
@@ -134,7 +134,7 @@ jobs:
 
 ### 4️⃣ Add Required GitHub Secrets
 
-- `CHATGPT_API_KEY`
+- `OPENROUTER_API_KEY` (required)
 - `GITHUB_TOKEN` (use default from GitHub)
 
 ---
