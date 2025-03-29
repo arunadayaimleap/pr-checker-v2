@@ -12,6 +12,8 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      REPO_NAME: ${{ github.repository }}
 
     steps:
       - name: 📥 Checkout Code
@@ -38,10 +40,14 @@ jobs:
           # Create .env in the main directory
           echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" > pr-checker/.env
           echo "GITHUB_TOKEN=${{ secrets.GH_TOKEN }}" >> pr-checker/.env
+          echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> pr-checker/.env
+          echo "REPO_NAME=${{ github.repository }}" >> pr-checker/.env
           
           # Create .env in src directory also
           echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" > pr-checker/src/.env
           echo "GITHUB_TOKEN=${{ secrets.GH_TOKEN }}" >> pr-checker/src/.env
+          echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> pr-checker/src/.env
+          echo "REPO_NAME=${{ github.repository }}" >> pr-checker/src/.env
           
           echo "Created .env files in multiple locations"
           find pr-checker -name ".env" | xargs ls -la
@@ -52,11 +58,15 @@ jobs:
           // Directly set environment variables before requiring the main file
           process.env.OPENROUTER_API_KEY = "${{ secrets.OPENROUTER_API_KEY }}";
           process.env.GITHUB_TOKEN = "${{ secrets.GH_TOKEN }}";
+          process.env.PR_NUMBER = "${{ github.event.pull_request.number }}";
+          process.env.REPO_NAME = "${{ github.repository }}";
           
           // Log environment variables for debugging
           console.log('Environment variables directly set in run.js:');
           console.log('- OPENROUTER_API_KEY exists:', Boolean(process.env.OPENROUTER_API_KEY));
           console.log('- GITHUB_TOKEN exists:', Boolean(process.env.GITHUB_TOKEN));
+          console.log('- PR_NUMBER:', process.env.PR_NUMBER);
+          console.log('- REPO_NAME:', process.env.REPO_NAME);
           
           // Import and run the main file
           import('./src/index.js').catch(err => {
@@ -67,12 +77,24 @@ jobs:
           
           echo "Created custom run.js script in pr-checker directory"
 
+      - name: 🖼️ Configure image upload paths
+        run: |
+          mkdir -p pr-checker/public
+          echo "DIAGRAM_BASE_URL=https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/pr-checker/public" >> pr-checker/.env
+          echo "DIAGRAM_BASE_URL=https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/pr-checker/public" >> pr-checker/src/.env
+
       - name: 🧠 Run PR Checker with custom script
         working-directory: pr-checker
         run: |
           # Export env vars directly to the shell
           export OPENROUTER_API_KEY="${{ secrets.OPENROUTER_API_KEY }}"
           export GITHUB_TOKEN="${{ secrets.GH_TOKEN }}"
+          export PR_NUMBER="${{ github.event.pull_request.number }}"
+          export REPO_NAME="${{ github.repository }}"
+          export DIAGRAM_BASE_URL="https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/pr-checker/public"
+          
+          # Create public directory for diagrams
+          mkdir -p public
           
           # Run our custom script that sets env vars programmatically
           node run.js
@@ -84,4 +106,18 @@ jobs:
           path: |
             pr-checker/results/**/*.md
             pr-checker/results/**/*.png
+            pr-checker/public/**/*.png
             pr-checker/pr-review-output.md
+
+      - name: 🌐 Commit diagram images to repository
+        run: |
+          # Copy diagrams to public directory if not already there
+          mkdir -p pr-checker/public
+          find pr-checker/results -name "*.png" -exec cp {} pr-checker/public/ \;
+          
+          # Commit the diagram images
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add pr-checker/public/
+          git commit -m "Add PR analysis diagrams" || echo "No changes to commit"
+          git push
