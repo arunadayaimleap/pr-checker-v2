@@ -23,17 +23,15 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: pr-checker/package-lock.json
 
       - name: 📦 Clone Visual PR Checker
         run: |
           git clone https://github.com/arunadayaimleap/pr-checker-v2.git pr-checker
 
-      - name: 📦 Install Dependencies with cache
+      - name: 📦 Install Dependencies
         working-directory: pr-checker
         run: |
-          npm ci --prefer-offline --no-audit
+          npm ci --no-audit
 
       - name: 📝 Create multiple .env files
         run: |
