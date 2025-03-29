@@ -5,9 +5,9 @@ import {
   callModelWithPrompt, 
   callModelWithFallbacks,
   saveResults, 
-  createOutputDir, 
-  addCommentToPR 
+  createOutputDir
 } from './utils/openrouter-utils.js';
+import { addCommentToPR } from './utils/github-utils.js';
 import {
   extractMermaidFromMarkdown,
   renderMermaidToImage,
@@ -42,8 +42,8 @@ async function processPR(formattedPRContent, prNumber) {
       outputDir
     );
     
-    // Add comment for code review
-    if (process.env.GITHUB_TOKEN && process.env.COMMENT_ON_PR === 'true') {
+    // Add comment for code review - always post if GITHUB_TOKEN exists
+    if (process.env.GITHUB_TOKEN) {
       await addCommentToPR(
         'AI Code Review Analysis',
         reviewResponse.content,
@@ -118,11 +118,8 @@ async function processPR(formattedPRContent, prNumber) {
       prNumber
     );
     
-    // Step 4: Generate combined diagrams comment (optional)
-    if (process.env.GITHUB_TOKEN && 
-        process.env.COMMENT_ON_PR === 'true' && 
-        process.env.COMBINED_DIAGRAM_COMMENT === 'true') {
-      
+    // Step 4: Generate combined diagrams comment - always post when GitHub token exists
+    if (process.env.GITHUB_TOKEN) {
       // Create a combined diagrams comment
       if (schemaResult.hasDiagrams && sequenceResult.hasDiagrams) {
         console.log('📊 Creating combined diagram comment...');
@@ -177,8 +174,8 @@ async function processAndRenderDiagrams(response, diagramType, outputDir, prNumb
   if (mermaidDiagrams.length === 0) {
     console.log(`⚠️ No Mermaid diagrams found in the ${diagramType} response`);
     
-    // Still post the original response
-    if (process.env.GITHUB_TOKEN && process.env.COMMENT_ON_PR === 'true') {
+    // Still post the original response - always post if GITHUB_TOKEN exists
+    if (process.env.GITHUB_TOKEN) {
       await addCommentToPR(
         `AI ${diagramType} Analysis`,
         response.content,
@@ -235,9 +232,8 @@ ${diagramText}`;
   
   result.processedMarkdown = processedMarkdown;
   
-  // Add comment with processed Mermaid diagrams
-  if (process.env.GITHUB_TOKEN && process.env.COMMENT_ON_PR === 'true' && 
-      process.env.COMBINED_DIAGRAM_COMMENT !== 'true') {
+  // Add comment with processed Mermaid diagrams - always post if GITHUB_TOKEN exists
+  if (process.env.GITHUB_TOKEN) {
     await addCommentToPR(
       `AI ${diagramType} Analysis`,
       processedMarkdown,
