@@ -29,14 +29,20 @@ export async function addCommentToPR(title, body, prNumber) {
 export async function getPRDetails(prNumber, repoName, workspacePath = null) {
   try {
     console.log(`🔍 Fetching PR #${prNumber} details from GitHub API...`);
+    console.log(`Using repo: ${repoName}, workspace: ${workspacePath}`);
     
     const token = process.env.GITHUB_TOKEN;
     if (!token) {
       throw new Error('GitHub token not found in environment variables');
     }
     
+    // Log token prefix to verify it's set correctly (don't log the whole token!)
+    console.log(`GitHub token starts with: ${token.substring(0, 4)}...`);
+    
     // Get the PR details from GitHub API
     const [owner, repo] = repoName.split('/');
+    console.log(`Owner: ${owner}, Repo: ${repo}`);
+    
     const apiUrl = `https://api.github.com/repos/${repoName}/pulls/${prNumber}`;
     
     console.log(`Requesting PR data from: ${apiUrl}`);
@@ -48,8 +54,11 @@ export async function getPRDetails(prNumber, repoName, workspacePath = null) {
       }
     });
     
+    console.log(`PR API response status: ${response.status}`);
+    
     if (!response.ok) {
       const errorText = await response.text();
+      console.error(`Response error: ${errorText}`);
       throw new Error(`GitHub API error: ${response.status} ${response.statusText} - ${errorText}`);
     }
     
@@ -67,13 +76,28 @@ export async function getPRDetails(prNumber, repoName, workspacePath = null) {
       }
     });
     
+    console.log(`Files API response status: ${filesResponse.status}`);
+    
     if (!filesResponse.ok) {
       const errorText = await filesResponse.text();
+      console.error(`Files response error: ${errorText}`);
       throw new Error(`GitHub API error (files): ${filesResponse.status} ${filesResponse.statusText} - ${errorText}`);
     }
     
     const filesData = await filesResponse.json();
     console.log(`✅ Retrieved ${filesData.length} changed files in PR`);
+    
+    // Log some details about the first few files
+    if (filesData.length > 0) {
+      console.log(`First ${Math.min(3, filesData.length)} changed files:`);
+      filesData.slice(0, 3).forEach((file, i) => {
+        console.log(`${i+1}. ${file.filename} (${file.status}, +${file.additions}/-${file.deletions})`);
+        console.log(`   Patch available: ${Boolean(file.patch)}`);
+        if (file.patch) {
+          console.log(`   Patch preview: ${file.patch.substring(0, 100)}...`);
+        }
+      });
+    }
     
     // Process the changed files to get their diffs
     const changedFiles = await Promise.all(filesData.map(async file => {
@@ -91,6 +115,8 @@ export async function getPRDetails(prNumber, repoName, workspacePath = null) {
       };
     }));
     
+    console.log(`📊 Processed ${changedFiles.length} files with their diffs`);
+    
     return {
       number: prNumber,
       title: prData.title,
@@ -100,6 +126,7 @@ export async function getPRDetails(prNumber, repoName, workspacePath = null) {
     };
   } catch (error) {
     console.error(`❌ Error fetching PR details: ${error.message}`);
+    console.error(error.stack);
     throw error;
   }
 }

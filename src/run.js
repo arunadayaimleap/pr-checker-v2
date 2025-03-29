@@ -15,6 +15,10 @@ async function main() {
     const repoName = process.env.REPO_NAME;
     const githubToken = process.env.GITHUB_TOKEN;
     
+    console.log(`PR_NUMBER: ${prNumber}`);
+    console.log(`REPO_NAME: ${repoName}`);
+    console.log(`GITHUB_TOKEN exists: ${Boolean(githubToken)}`);
+    
     if (!prNumber || !repoName || !githubToken) {
       console.error('❌ Missing required environment variables:');
       console.error(`PR_NUMBER: ${Boolean(prNumber)}`);
@@ -26,12 +30,14 @@ async function main() {
     // Get workspace path (passed as parameter from workflow)
     const workspacePath = process.argv[2];
     console.log(`Using workspace path: ${workspacePath || 'not provided'}`);
+    console.log(`All command-line arguments: ${JSON.stringify(process.argv)}`);
     
     // Get PR details including diff files
     console.log(`Fetching PR #${prNumber} details for repo ${repoName}...`);
     const prDetails = await getPRDetails(prNumber, repoName, workspacePath);
     
     console.log(`✅ Found ${prDetails.changedFiles.length} changed files in PR #${prNumber}`);
+    console.log(`Changed files: ${prDetails.changedFiles.map(f => f.path).join(', ')}`);
     
     // If there are no changed files, exit
     if (prDetails.changedFiles.length === 0) {
@@ -58,6 +64,8 @@ ${file.diff || file.content || 'No content available'}
 `;
     
     console.log('📝 Formatted PR content for analysis');
+    console.log('Content begins with:');
+    console.log(formattedPRContent.substring(0, 500) + '...');
     
     // Process the PR
     await processPR(formattedPRContent, prNumber);

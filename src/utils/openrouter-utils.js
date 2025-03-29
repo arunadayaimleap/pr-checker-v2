@@ -92,103 +92,57 @@ export const CHANGED_FILES = [
   }
 ];
 
-// The system prompts
+// System prompts for different tasks
 export const SYSTEM_PROMPTS = {
-  codeReview: 'You are a senior software developer who specializes in code review. Provide a detailed, well-formatted markdown response with headings, bullet points, and code examples where appropriate.',
-  schemaDesign: 'You are a software architect who specializes in visualizing system components. Generate a clear Mermaid diagram showing relationships between components. Wrap your diagram in ```mermaid code blocks and follow it with an explanation of the architecture.',
-  mermaidSchema: 'You are a diagramming expert. Create a Mermaid diagram that visualizes the structure and relationships between components. Your diagram must be in correct Mermaid syntax and wrapped in ```mermaid code blocks. After the diagram, explain each component and relationship.',
-  sequenceDiagram: 'You are a sequence diagram expert. Generate a Mermaid sequence diagram showing how components interact over time. Focus on method calls, data flow, and the order of operations. Your diagram must use correct Mermaid syntax and be wrapped in ```mermaid code blocks. After the diagram, explain the flow of operations.'
+  codeReview: `You are an expert code reviewer. 
+Analyze the PR diff content I'll provide and give a detailed, well-organized code review.
+Focus on:
+1. Potential bugs or issues
+2. Security concerns
+3. Performance improvements
+4. Code style and best practices
+5. Architecture and design considerations
+
+Format your response as markdown with clear sections for different types of feedback.
+Use the actual code from the PR, not hypothetical examples.`,
+
+  mermaidSchema: `You are a software architect who creates clear, precise diagrams.
+Generate a Mermaid class or entity diagram that shows the relationships between the components in the PR.
+Focus only on the actual files and components changed in the PR.
+Use proper Mermaid syntax with flowchart TD or classDiagram.`,
+
+  sequenceDiagram: `You are a software architect who creates detailed sequence diagrams.
+Generate a Mermaid sequence diagram showing how the components in the PR interact over time.
+Focus only on the actual files and components changed in the PR.
+Use proper Mermaid sequence diagram syntax.`
 };
 
-// The user prompts
+// User prompts for different tasks
 export const USER_PROMPTS = {
-  codeReview: `Review this JavaScript code and provide a detailed analysis in markdown format:
-
-\`\`\`javascript
-${SAMPLE_CODE}
-\`\`\`
-
-Please include:
-1. A summary of what the code does
-2. Strengths of the implementation
-3. Potential issues or bugs
-4. Suggestions for improvement
-5. Best practices that are followed or violated
-
-Your response must be well-formatted markdown with appropriate headings, bullet points, and code blocks.`,
-
-  schemaDesign: `Based on these changed files in a pull request, create a schema diagram using Mermaid syntax that shows how these files are related to each other:
-
-${CHANGED_FILES.map(file => `- **${file.name}** (${file.type}): ${file.description}`).join('\n')}
-
-Your response MUST include:
-1. A Mermaid diagram showing the files and their relationships
-2. The diagram must be wrapped in a \`\`\`mermaid code block
-3. Use appropriate Mermaid notation (class diagram, flowchart, etc.)
-4. Show relationships with arrows and labels
-5. Provide a brief explanation of the diagram
-
-Example Mermaid class diagram syntax:
-\`\`\`mermaid
-classDiagram
-    Class01 <|-- AveryLongClass : implements
-    Class03 *-- Class04 : contains
-    Class05 o-- Class06 : references
-    Class07 --> Class08 : dependency
-\`\`\`
-
-Or example flowchart syntax:
-\`\`\`mermaid
-flowchart TD
-    A[Component A] -->|uses| B[Component B]
-    B -->|extends| C[Component C]
-    C -->|implements| D[Component D]
-\`\`\`
-
-Keep it simple but make sure to show all important relationships between the files.`,
-
-  mermaidSchema: `Generate a Mermaid diagram that shows the architecture of these components:
-
-${CHANGED_FILES.map(file => `- **${file.name}** (${file.type}): ${file.description}`).join('\n')}
+  mermaidSchema: `Generate a Mermaid diagram that shows the architecture and relationships between the components changed in this PR.
+Use the PR diff data to create an accurate representation of the components and their relationships.
 
 Requirements:
 1. Use proper Mermaid syntax (flowchart TD or classDiagram preferred)
-2. Show all components as nodes
+2. Show all components mentioned in the PR as nodes
 3. Connect related components with appropriate arrows
 4. Label each connection to describe the relationship
-5. Wrap the diagram in \`\`\`mermaid code blocks
-6. After the diagram, explain the architecture in 3-4 sentences
+5. Include component properties and methods mentioned in the PR diff
+6. Wrap the diagram in \`\`\`mermaid code blocks
+7. After the diagram, explain the architecture in 3-4 sentences
 
 Your entire response should be valid markdown.`,
 
-  sequenceDiagram: `Generate a Mermaid sequence diagram that shows the interaction between these components:
-
-${CHANGED_FILES.map(file => `- **${file.name}** (${file.type}): ${file.description}`).join('\n')}
+  sequenceDiagram: `Generate a Mermaid sequence diagram that shows the interaction between the components changed in this PR.
+Use the PR diff data to create an accurate representation of the sequence of operations.
 
 Requirements:
 1. Use Mermaid sequence diagram syntax
-2. Show a typical user profile operation flow
-3. Include all components and their interactions
-4. Show method calls between components
-5. Display the flow of data
-6. Wrap the diagram in \`\`\`mermaid code blocks
-7. After the diagram, explain the sequence of operations in 3-4 sentences
-
-Example Mermaid sequence diagram syntax:
-\`\`\`mermaid
-sequenceDiagram
-    participant Client
-    participant ServiceA
-    participant ServiceB
-    participant Database
-    
-    Client->>ServiceA: request()
-    ServiceA->>ServiceB: processData()
-    ServiceB->>Database: query()
-    Database-->>ServiceB: results
-    ServiceB-->>ServiceA: processedData
-    ServiceA-->>Client: response
-\`\`\`
+2. Show the components mentioned in the PR diff
+3. Include method calls between components
+4. Display the flow of data
+5. Wrap the diagram in \`\`\`mermaid code blocks
+6. After the diagram, explain the sequence of operations in 3-4 sentences
 
 Your entire response should be valid markdown.`
 };

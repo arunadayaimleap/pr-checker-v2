@@ -19,6 +19,10 @@ import path from 'path';
 
 async function processPR(formattedPRContent, prNumber) {
   try {
+    // Log the first part of the PR content to verify it's using the correct data
+    console.log(`Processing PR #${prNumber} with content:`);
+    console.log(formattedPRContent.substring(0, 500) + '...');
+    
     // Create output directory
     const outputDir = await createOutputDir();
     

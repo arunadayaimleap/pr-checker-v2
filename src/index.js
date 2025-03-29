@@ -20,38 +20,36 @@ console.log('Environment variables status:');
 console.log(`- OPENROUTER_API_KEY exists: ${Boolean(process.env.OPENROUTER_API_KEY)}`);
 console.log(`- GITHUB_TOKEN exists: ${Boolean(process.env.GITHUB_TOKEN)}`);
 
-console.log('🚀 Starting PR Checker');
-console.log('-----------------------------------');
+// Main entry point for the PR Checker
 
-// Check for required environment variables
-if (!process.env.OPENROUTER_API_KEY) {
-  console.error('❌ Error: OPENROUTER_API_KEY not found in environment variables');
-  console.error('Please set up your .env file with your OpenRouter API key');
-  process.exit(1);
+// Check if we're being called directly from run.js
+// If so, import the run.js file
+if (process.argv.length > 2 && process.argv[2]) {
+  console.log('🚀 Starting PR Checker with workspace path:', process.argv[2]);
+  console.log(`Command-line arguments: ${JSON.stringify(process.argv)}`);
+  
+  // Call run.js directly instead of importing it
+  import('./run.js')
+    .then(module => {
+      console.log('✅ Successfully imported run.js');
+    })
+    .catch(err => {
+      console.error('❌ Error importing run.js:', err);
+      console.error(err.stack);
+      process.exit(1);
+    });
+} else {
+  console.warn('⚠️ No workspace path provided, falling back to sample data');
+  console.log(`Command-line arguments: ${JSON.stringify(process.argv)}`);
+  
+  // Original index.js code for backward compatibility
+  import('./legacy-index.js')
+    .then(module => {
+      console.log('✅ Successfully imported legacy-index.js');
+    })
+    .catch(err => {
+      console.error('❌ Error importing legacy-index.js:', err);
+      console.error(err.stack);
+      process.exit(1);
+    });
 }
-
-// Main function to run the PR checker
-async function main() {
-  try {
-    // Create a formatted PR content for testing
-    const formattedPRContent = `This PR includes changes to the user profile system:
-
-${CHANGED_FILES.map(file => `- **${file.name}** (${file.type}): ${file.description}`).join('\n')}
-
-These changes are necessary to improve performance by adding caching to user profile operations.
-Please review the changes and provide feedback.`;
-    
-    // Process the PR
-    await processPR(formattedPRContent, 123); // Mock PR number for testing
-    
-  } catch (error) {
-    console.error('❌ Error running PR Checker:', error);
-    process.exit(1);
-  }
-}
-
-// Run the main function
-main().catch(error => {
-  console.error('Unhandled error:', error);
-  process.exit(1);
-});
