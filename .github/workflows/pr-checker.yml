@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      CHATGPT_API_KEY: ${{ secrets.CHATGPT_API_KEY }}
       GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
