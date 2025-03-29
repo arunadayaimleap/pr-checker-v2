@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs-extra';
 import processPR from './pr-checker.js';
+import { CHANGED_FILES } from './utils/openrouter-utils.js';
 
 // Load environment variables
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -21,13 +22,16 @@ if (!process.env.OPENROUTER_API_KEY) {
 // Main function to run the PR checker
 async function main() {
   try {
-    // Get PR content
-    // This would normally come from the GitHub API in a real workflow
-    // For now, we'll use a sample PR content
-    const formattedPRContent = 'Sample PR content'; // Replace with actual PR content
+    // Create a formatted PR content for testing
+    const formattedPRContent = `This PR includes changes to the user profile system:
+
+${CHANGED_FILES.map(file => `- **${file.name}** (${file.type}): ${file.description}`).join('\n')}
+
+These changes are necessary to improve performance by adding caching to user profile operations.
+Please review the changes and provide feedback.`;
     
     // Process the PR
-    await processPR(formattedPRContent);
+    await processPR(formattedPRContent, 123); // Mock PR number for testing
     
   } catch (error) {
     console.error('❌ Error running PR Checker:', error);

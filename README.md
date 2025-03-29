@@ -197,6 +197,30 @@ Note: When running locally, the PR comment won't be posted to GitHub, but you'll
 
 ---
 
+## Mermaid Diagrams
+
+The PR Checker generates Mermaid diagrams to visualize:
+
+1. **Component Relationships**: Shows how different files and components interact with each other
+2. **Data Flow**: Illustrates how data moves through the system
+3. **Architecture Overview**: Provides a high-level view of the system architecture
+
+These diagrams are automatically rendered as images and included in the PR comments.
+
+## Testing Mermaid Integration
+
+To test the Mermaid diagram generation and rendering:
+
+```bash
+# Test Mermaid diagram generation using AI models
+npm run test-mermaid
+
+# Test Mermaid rendering functionality
+npm run test-mermaid-render
+```
+
+---
+
 ## AI Model
 
 This PR Checker uses a robust model fallback system:

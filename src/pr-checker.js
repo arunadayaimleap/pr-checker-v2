@@ -8,8 +8,15 @@ import {
   createOutputDir, 
   addCommentToPR 
 } from './utils/openrouter-utils.js';
+import {
+  extractMermaidFromMarkdown,
+  renderMermaidToImage,
+  processMermaidInMarkdown
+} from './utils/mermaid-renderer.js';
+import fs from 'fs-extra';
+import path from 'path';
 
-async function processPR() {
+async function processPR(formattedPRContent, prNumber) {
   try {
     // Create output directory
     const outputDir = await createOutputDir();
@@ -39,35 +46,85 @@ async function processPR() {
     if (process.env.GITHUB_TOKEN && process.env.COMMENT_ON_PR === 'true') {
       await addCommentToPR(
         'AI Code Review Analysis',
-        reviewResponse,
+        reviewResponse.content,
         prNumber
       );
     }
     
-    // Schema suggestion with models
-    console.log('🗂️ Generating schema suggestions...');
-    const schemaResponse = await callModelWithFallbacks(
+    // Mermaid schema generation
+    console.log('🗂️ Generating Mermaid schema...');
+    const mermaidResponse = await callModelWithFallbacks(
       MODEL_FALLBACKS.PRIMARY,
       MODEL_FALLBACKS.FALLBACKS,
-      SYSTEM_PROMPTS.schemaDesign,
-      formattedPRContent
+      SYSTEM_PROMPTS.mermaidSchema,
+      USER_PROMPTS.mermaidSchema
     );
     
     // Save schema results
     await saveResults(
       'primary-with-fallbacks', 
-      'schema-suggestions', 
-      schemaResponse, 
+      'mermaid-schema', 
+      mermaidResponse, 
       outputDir
     );
     
-    // Add comment for schema suggestions
-    if (process.env.GITHUB_TOKEN && process.env.COMMENT_ON_PR === 'true') {
-      await addCommentToPR(
-        'AI Schema Design Suggestions',
-        schemaResponse,
-        prNumber
-      );
+    // Extract and render Mermaid diagrams
+    if (mermaidResponse.success) {
+      console.log('🎨 Extracting and rendering Mermaid diagrams...');
+      
+      // Extract Mermaid code blocks
+      const mermaidDiagrams = extractMermaidFromMarkdown(mermaidResponse.content);
+      
+      if (mermaidDiagrams.length > 0) {
+        console.log(`Found ${mermaidDiagrams.length} Mermaid diagrams in the response`);
+        
+        // Save each Mermaid diagram and render it
+        for (let i = 0; i < mermaidDiagrams.length; i++) {
+          const diagramCode = mermaidDiagrams[i];
+          const diagramPath = path.join(outputDir, `diagram-${i+1}.mmd`);
+          await fs.writeFile(diagramPath, diagramCode);
+          
+          // Render the diagram
+          const renderResult = await renderMermaidToImage(
+            diagramCode, 
+            outputDir, 
+            `diagram-${i+1}`
+          );
+          
+          if (renderResult.success) {
+            console.log(`✅ Successfully rendered diagram ${i+1} to: ${renderResult.pngPath}`);
+          } else {
+            console.error(`❌ Failed to render diagram ${i+1}: ${renderResult.error}`);
+          }
+        }
+        
+        // Process markdown to include rendered diagrams
+        const processedMarkdown = await processMermaidInMarkdown(mermaidResponse.content, outputDir);
+        const processedPath = path.join(outputDir, 'processed-schema.md');
+        await fs.writeFile(processedPath, processedMarkdown);
+        
+        // Add comment with processed Mermaid diagrams
+        if (process.env.GITHUB_TOKEN && process.env.COMMENT_ON_PR === 'true') {
+          await addCommentToPR(
+            'AI Schema Visualization',
+            processedMarkdown,
+            prNumber
+          );
+        }
+      } else {
+        console.log('⚠️ No Mermaid diagrams found in the schema response');
+        
+        // Still post the original response
+        if (process.env.GITHUB_TOKEN && process.env.COMMENT_ON_PR === 'true') {
+          await addCommentToPR(
+            'AI Schema Design Suggestions',
+            mermaidResponse.content,
+            prNumber
+          );
+        }
+      }
+    } else {
+      console.log('❌ Failed to generate Mermaid schema');
     }
     
     console.log('✅ PR processing completed successfully');

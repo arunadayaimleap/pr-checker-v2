@@ -88,7 +88,8 @@ export const CHANGED_FILES = [
 // The system prompts
 export const SYSTEM_PROMPTS = {
   codeReview: 'You are a senior software developer who specializes in code review. Provide a detailed, well-formatted markdown response with headings, bullet points, and code examples where appropriate.',
-  schemaDesign: 'You are a software architect who specializes in visualizing system components. Generate a clear, well-structured text-based schema in markdown format. Focus on creating simple, effective ASCII diagrams with arrows showing relationships between components.'
+  schemaDesign: 'You are a software architect who specializes in visualizing system components. Generate a clear Mermaid diagram showing relationships between components. Wrap your diagram in ```mermaid code blocks and follow it with an explanation of the architecture.',
+  mermaidSchema: 'You are a diagramming expert. Create a Mermaid diagram that visualizes the structure and relationships between components. Your diagram must be in correct Mermaid syntax and wrapped in ```mermaid code blocks. After the diagram, explain each component and relationship.'
 };
 
 // The user prompts
@@ -108,30 +109,49 @@ Please include:
 
 Your response must be well-formatted markdown with appropriate headings, bullet points, and code blocks.`,
 
-  schemaDesign: `Based on these changed files in a pull request, create a text-based schema diagram in markdown that shows how these files are related to each other:
+  schemaDesign: `Based on these changed files in a pull request, create a schema diagram using Mermaid syntax that shows how these files are related to each other:
 
 ${CHANGED_FILES.map(file => `- **${file.name}** (${file.type}): ${file.description}`).join('\n')}
 
-Your response should:
-1. Use simple ASCII/markdown to create a visualization showing the files as boxes or nodes
-2. Connect the boxes with arrows (-> or =>) to show dependencies 
-3. Add brief labels to the arrows to explain the relationships
-4. Provide a short explanation of the schema below the diagram
+Your response MUST include:
+1. A Mermaid diagram showing the files and their relationships
+2. The diagram must be wrapped in a \`\`\`mermaid code block
+3. Use appropriate Mermaid notation (class diagram, flowchart, etc.)
+4. Show relationships with arrows and labels
+5. Provide a brief explanation of the diagram
 
-Example of the type of ASCII diagram I'm looking for:
-\`\`\`
-┌───────────────┐           ┌───────────────┐
-│  ComponentA   │──────────>│  ComponentB   │
-└───────────────┘   uses    └───────────────┘
-        │                           │
-        │ extends                   │ implements
-        ▼                           ▼
-┌───────────────┐           ┌───────────────┐
-│  ComponentC   │<─────────┤  ComponentD   │
-└───────────────┘  calls    └───────────────┘
+Example Mermaid class diagram syntax:
+\`\`\`mermaid
+classDiagram
+    Class01 <|-- AveryLongClass : implements
+    Class03 *-- Class04 : contains
+    Class05 o-- Class06 : references
+    Class07 --> Class08 : dependency
 \`\`\`
 
-Keep it simple but make sure to show all important relationships between the files.`
+Or example flowchart syntax:
+\`\`\`mermaid
+flowchart TD
+    A[Component A] -->|uses| B[Component B]
+    B -->|extends| C[Component C]
+    C -->|implements| D[Component D]
+\`\`\`
+
+Keep it simple but make sure to show all important relationships between the files.`,
+
+  mermaidSchema: `Generate a Mermaid diagram that shows the architecture of these components:
+
+${CHANGED_FILES.map(file => `- **${file.name}** (${file.type}): ${file.description}`).join('\n')}
+
+Requirements:
+1. Use proper Mermaid syntax (flowchart TD or classDiagram preferred)
+2. Show all components as nodes
+3. Connect related components with appropriate arrows
+4. Label each connection to describe the relationship
+5. Wrap the diagram in \`\`\`mermaid code blocks
+6. After the diagram, explain the architecture in 3-4 sentences
+
+Your entire response should be valid markdown.`
 };
 
 // Utility function to introduce a delay
