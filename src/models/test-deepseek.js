@@ -6,10 +6,10 @@ import {
   createOutputDir 
 } from '../utils/openrouter-utils.js';
 
-async function testGpt() {
+async function testDeepSeek() {
   try {
-    // Use Mistral Small as a replacement for GPT since it's a high-quality free model
-    const MODEL = 'mistralai/mistral-small-3.1-24b-instruct:free';
+    // Use the DeepSeek model from the free list
+    const MODEL = 'deepseek/deepseek-chat-v3-0324:free';
     
     console.log(`🔍 Testing OpenRouter API with ${MODEL}`);
     console.log('-----------------------------------');
@@ -26,7 +26,7 @@ async function testGpt() {
     const outputDir = await createOutputDir();
     
     // First prompt - code analysis
-    console.log("Running code analysis...");
+    console.log("Running code analysis with DeepSeek...");
     const analysisResult = await callModelWithPrompt(
       MODEL,
       SYSTEM_PROMPTS.codeReview,
@@ -36,7 +36,7 @@ async function testGpt() {
     await saveResults(MODEL, 'code-analysis', analysisResult, outputDir);
     
     // Second prompt - schema generation
-    console.log("Running schema generation...");
+    console.log("Running schema generation with DeepSeek...");
     const schemaResult = await callModelWithPrompt(
       MODEL,
       SYSTEM_PROMPTS.schemaDesign,
@@ -45,7 +45,7 @@ async function testGpt() {
     
     await saveResults(MODEL, 'schema', schemaResult, outputDir);
     
-    console.log(`\n✨ ${MODEL} test completed!`);
+    console.log(`\n✨ DeepSeek test completed!`);
     console.log(`📂 Results saved to: ${outputDir}`);
     
   } catch (error) {
@@ -55,4 +55,4 @@ async function testGpt() {
   }
 }
 
-testGpt();
+testDeepSeek();

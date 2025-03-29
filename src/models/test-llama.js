@@ -8,7 +8,10 @@ import {
 
 async function testLlama() {
   try {
-    console.log('🔍 Testing OpenRouter API with Llama 3');
+    // Use the correct Llama model from the free list
+    const MODEL = 'meta-llama/llama-3-8b-instruct:free';
+    
+    console.log(`🔍 Testing OpenRouter API with ${MODEL}`);
     console.log('-----------------------------------');
 
     // Verify environment variable
@@ -25,24 +28,24 @@ async function testLlama() {
     // First prompt - code analysis
     console.log("Running code analysis with Llama 3...");
     const analysisResult = await callModelWithPrompt(
-      'meta-llama/llama-3-8b-instruct',
+      MODEL,
       SYSTEM_PROMPTS.codeReview,
       USER_PROMPTS.codeReview
     );
     
-    await saveResults('meta-llama/llama-3-8b-instruct', 'code-analysis', analysisResult, outputDir);
+    await saveResults(MODEL, 'code-analysis', analysisResult, outputDir);
     
     // Second prompt - schema generation
     console.log("Running schema generation with Llama 3...");
     const schemaResult = await callModelWithPrompt(
-      'meta-llama/llama-3-8b-instruct',
+      MODEL,
       SYSTEM_PROMPTS.schemaDesign,
       USER_PROMPTS.schemaDesign
     );
     
-    await saveResults('meta-llama/llama-3-8b-instruct', 'schema', schemaResult, outputDir);
+    await saveResults(MODEL, 'schema', schemaResult, outputDir);
     
-    console.log('\n✨ Llama 3 test completed!');
+    console.log(`\n✨ Llama 3 test completed!`);
     console.log(`📂 Results saved to: ${outputDir}`);
     
   } catch (error) {

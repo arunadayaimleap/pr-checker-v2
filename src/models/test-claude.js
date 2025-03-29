@@ -8,7 +8,10 @@ import {
 
 async function testClaude() {
   try {
-    console.log('🔍 Testing OpenRouter API with Claude 3 Haiku');
+    // Use Gemini 2.5 Pro as a replacement for Claude since it's a high-quality free model
+    const MODEL = 'google/gemini-2.5-pro-exp-03-25:free';
+    
+    console.log(`🔍 Testing OpenRouter API with ${MODEL}`);
     console.log('-----------------------------------');
 
     // Verify environment variable
@@ -23,26 +26,26 @@ async function testClaude() {
     const outputDir = await createOutputDir();
     
     // First prompt - code analysis
-    console.log("Running code analysis with Claude...");
+    console.log("Running code analysis...");
     const analysisResult = await callModelWithPrompt(
-      'anthropic/claude-3-haiku-20240307',
+      MODEL,
       SYSTEM_PROMPTS.codeReview,
       USER_PROMPTS.codeReview
     );
     
-    await saveResults('anthropic/claude-3-haiku-20240307', 'code-analysis', analysisResult, outputDir);
+    await saveResults(MODEL, 'code-analysis', analysisResult, outputDir);
     
     // Second prompt - schema generation
-    console.log("Running schema generation with Claude...");
+    console.log("Running schema generation...");
     const schemaResult = await callModelWithPrompt(
-      'anthropic/claude-3-haiku-20240307',
+      MODEL,
       SYSTEM_PROMPTS.schemaDesign,
       USER_PROMPTS.schemaDesign
     );
     
-    await saveResults('anthropic/claude-3-haiku-20240307', 'schema', schemaResult, outputDir);
+    await saveResults(MODEL, 'schema', schemaResult, outputDir);
     
-    console.log('\n✨ Claude 3 Haiku test completed!');
+    console.log(`\n✨ ${MODEL} test completed!`);
     console.log(`📂 Results saved to: ${outputDir}`);
     
   } catch (error) {
