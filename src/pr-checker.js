@@ -230,21 +230,16 @@ async function processAndRenderDiagrams(response, diagramType, outputDir, prNumb
       
       if (uploadResult.success) {
         console.log(`✅ Successfully uploaded to ImgBB: ${uploadResult.url}`);
-        
-        // Store the URL for use in markdown
-        const imageUrl = uploadResult.url;
-        renderResult.imgbbUrl = imageUrl;
+        renderResult.imgbbUrl = uploadResult.displayUrl;
         
         // Save first diagram section for combined comment
         if (i === 0) {
           // Get diagram explanation text (look for text after the first mermaid block)
           const diagramText = extractTextAfterMermaid(response.content, diagramCode);
           
-          // Basic markdown image
-          const imageMarkdown = `![${diagramType.toLowerCase()}-diagram](${imageUrl})`;
-          
-          result.firstDiagramSection = `${imageMarkdown}\n\n${diagramText}`;
-          console.log(`Using URL in markdown: ${imageUrl}`);
+          result.firstDiagramSection = `![${diagramType.toLowerCase()}-diagram](${uploadResult.displayUrl})
+
+${diagramText}`;
         }
       } else {
         console.error(`❌ Failed to upload to ImgBB: ${uploadResult.error}`);
@@ -279,9 +274,7 @@ ${diagramText}`;
     const renderResult = renderResults[i];
     
     if (renderResult && renderResult.success && renderResult.imgbbUrl) {
-      // Basic markdown image 
       const imageMarkdown = `![${diagramType.toLowerCase()}-diagram-${i+1}](${renderResult.imgbbUrl})`;
-      console.log(`Replacing mermaid block with: ${imageMarkdown}`);
       processedMarkdown = processedMarkdown.replace(mermaidBlock, imageMarkdown);
     }
   }

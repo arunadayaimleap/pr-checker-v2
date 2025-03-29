@@ -42,10 +42,11 @@ export async function uploadImageToImgBB(imagePath, name) {
       throw new Error(`ImgBB upload failed: ${data.error?.message || 'Unknown error'}`);
     }
 
-    // Simply return the raw URL from the API response without any processing
     return {
       success: true,
-      url: data.data.url
+      url: data.data.url,
+      displayUrl: data.data.display_url,
+      deleteUrl: data.data.delete_url
     };
   } catch (error) {
     console.error(`❌ Failed to upload image to ImgBB: ${error.message}`);
