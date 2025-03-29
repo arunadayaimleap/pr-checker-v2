@@ -88,7 +88,7 @@ export const CHANGED_FILES = [
 // The system prompts
 export const SYSTEM_PROMPTS = {
   codeReview: 'You are a senior software developer who specializes in code review. Provide a detailed, well-formatted markdown response with headings, bullet points, and code examples where appropriate.',
-  schemaDesign: 'You are a software architect who specializes in visualizing system components. Generate a clear, well-structured text-based schema in markdown format.'
+  schemaDesign: 'You are a software architect who specializes in visualizing system components. Generate a clear, well-structured text-based schema in markdown format. Focus on creating simple, effective ASCII diagrams with arrows showing relationships between components.'
 };
 
 // The user prompts
@@ -113,12 +113,25 @@ Your response must be well-formatted markdown with appropriate headings, bullet 
 ${CHANGED_FILES.map(file => `- **${file.name}** (${file.type}): ${file.description}`).join('\n')}
 
 Your response should:
-1. Use markdown formatting to create a text-based visualization of the relationships
-2. Show dependencies between files
-3. Indicate the direction of dependencies with arrows or similar notation
-4. Provide a brief explanation of the schema
+1. Use simple ASCII/markdown to create a visualization showing the files as boxes or nodes
+2. Connect the boxes with arrows (-> or =>) to show dependencies 
+3. Add brief labels to the arrows to explain the relationships
+4. Provide a short explanation of the schema below the diagram
 
-Be creative with ASCII/markdown to represent the relationships visually.`
+Example of the type of ASCII diagram I'm looking for:
+\`\`\`
+┌───────────────┐           ┌───────────────┐
+│  ComponentA   │──────────>│  ComponentB   │
+└───────────────┘   uses    └───────────────┘
+        │                           │
+        │ extends                   │ implements
+        ▼                           ▼
+┌───────────────┐           ┌───────────────┐
+│  ComponentC   │<─────────┤  ComponentD   │
+└───────────────┘  calls    └───────────────┘
+\`\`\`
+
+Keep it simple but make sure to show all important relationships between the files.`
 };
 
 // Utility function to introduce a delay
