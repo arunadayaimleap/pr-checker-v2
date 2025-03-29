@@ -49,8 +49,7 @@ jobs:
           echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> pr-checker/src/.env
           echo "REPO_NAME=${{ github.repository }}" >> pr-checker/src/.env
           
-          echo "Created .env files in multiple locations"
-          find pr-checker -name ".env" | xargs ls -la
+          echo "Created .env files"
 
       - name: 🔧 Create custom script to set env vars
         run: |
@@ -61,13 +60,6 @@ jobs:
           process.env.PR_NUMBER = "${{ github.event.pull_request.number }}";
           process.env.REPO_NAME = "${{ github.repository }}";
           
-          // Log environment variables for debugging
-          console.log('Environment variables directly set in run.js:');
-          console.log('- OPENROUTER_API_KEY exists:', Boolean(process.env.OPENROUTER_API_KEY));
-          console.log('- GITHUB_TOKEN exists:', Boolean(process.env.GITHUB_TOKEN));
-          console.log('- PR_NUMBER:', process.env.PR_NUMBER);
-          console.log('- REPO_NAME:', process.env.REPO_NAME);
-          
           // Import and run the main file
           import('./src/index.js').catch(err => {
             console.error('Error importing index.js:', err);
@@ -75,7 +67,7 @@ jobs:
           });
           EOF
           
-          echo "Created custom run.js script in pr-checker directory"
+          echo "Created custom run.js script"
 
       - name: 🖼️ Configure image upload paths
         run: |
@@ -96,7 +88,7 @@ jobs:
           # Create public directory for diagrams
           mkdir -p public
           
-          # Run our custom script that sets env vars programmatically
+          # Run our custom script
           node run.js
 
       - name: 📤 Upload PR Analysis Results
