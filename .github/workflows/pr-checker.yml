@@ -19,11 +19,21 @@ jobs:
         with:
           fetch-depth: 0  # Fetch all history for proper diff analysis
 
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: pr-checker/package-lock.json
+
       - name: 📦 Clone Visual PR Checker
         run: |
           git clone https://github.com/arunadayaimleap/pr-checker-v2.git pr-checker
-          cd pr-checker
-          npm install
+
+      - name: 📦 Install Dependencies with cache
+        working-directory: pr-checker
+        run: |
+          npm ci --prefer-offline --no-audit
 
       - name: 🧠 Run PR Checker
         run: |
