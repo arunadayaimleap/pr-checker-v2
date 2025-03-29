@@ -1,0 +1,31 @@
+name: PR Checker
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    
+jobs:
+  analyze-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run PR Checker
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          COMMENT_ON_PR: 'true'
+          USE_GPT4: ${{ github.event.pull_request.additions + github.event.pull_request.deletions > 500 }}
+        run: npm start

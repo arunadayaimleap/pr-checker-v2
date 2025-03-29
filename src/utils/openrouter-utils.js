@@ -276,6 +276,30 @@ export async function callModelWithPrompt(model, systemPrompt, userPrompt) {
   }
 }
 
+// Add this function to handle model fallbacks
+export async function callModelWithFallbacks(primaryModel, fallbackModels, systemPrompt, userPrompt) {
+  try {
+    console.log(`🤖 Attempting to use primary model: ${primaryModel}`);
+    return await callModelWithPrompt(primaryModel, systemPrompt, userPrompt);
+  } catch (error) {
+    console.warn(`⚠️ Primary model ${primaryModel} failed: ${error.message}`);
+    
+    // Try each fallback model in order
+    for (const fallbackModel of fallbackModels) {
+      try {
+        console.log(`🔄 Falling back to: ${fallbackModel}`);
+        return await callModelWithPrompt(fallbackModel, systemPrompt, userPrompt);
+      } catch (fallbackError) {
+        console.warn(`⚠️ Fallback model ${fallbackModel} failed: ${fallbackError.message}`);
+        // Continue to the next fallback
+      }
+    }
+    
+    // If all fallbacks fail, throw the original error
+    throw new Error(`All models failed. Original error: ${error.message}`);
+  }
+}
+
 // Function to save results to a file
 export async function saveResults(model, task, result, outputDir) {
   const shortModelName = model.split('/').pop().replace(/:.*$/, '');

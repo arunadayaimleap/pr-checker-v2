@@ -199,26 +199,54 @@ Note: When running locally, the PR comment won't be posted to GitHub, but you'll
 
 ## AI Model
 
-This PR Checker uses **Microsoft Phi-3 Medium** through the OpenRouter API for code analysis, with fallbacks to other models if needed. The models are used in this priority order:
+This PR Checker uses a robust model fallback system:
 
-1. Microsoft Phi-3 Medium (Primary)
-2. Google Gemini 2.5 Pro Experimental
-3. OpenAI GPT-3.5 Turbo
-4. Anthropic Claude 3 Haiku
-5. Meta Llama 3 8B
-6. Mistral 7B
+1. **DeepSeek Chat v3** (Primary model) - A powerful open-source model for code analysis
+2. **Microsoft Phi-3 Medium** (First fallback) - Specialized for code understanding
+3. **Google Gemini 2.5 Pro** (Second fallback) - Strong reasoning and code analysis capabilities
+4. **Meta Llama 3** (Third fallback) - Solid open-source model for code review
+5. **Mistral Small** (Fourth fallback) - Efficient model with good code comprehension
+6. **OpenAI GPT-3.5 Turbo** (Fifth fallback) - Reliable general-purpose model
+7. **Qwen 2.5 72B** (Final fallback) - Large open-source model with extensive capabilities
 
 This approach ensures reliable code analysis even when specific models have rate limits or availability issues.
 
-## Testing OpenRouter API
+## Testing Different Models
 
-To verify that the OpenRouter API is working correctly with Microsoft Phi-3 Medium, run:
+PR Checker includes several scripts to test different LLM models:
 
-```
+```bash
+# Test the model fallback mechanism
 npm run test-openrouter
+
+# Test specific models
+npm run test-deepseek
+npm run test-phi
+npm run test-llama
+npm run test-gemini
+npm run test-gpt
+npm run test-claude
+
+# List all available models from OpenRouter
+npm run list-models
 ```
 
-This will send a test request to the OpenRouter API using the Phi-3 model and display the response.
+---
+
+## Supported Models
+
+The system automatically tries multiple models in sequence, so you don't need to specify which model to use. All models are accessed through the OpenRouter API.
+
+## Environment Variables
+
+| Variable           | Description                                      |
+|--------------------|--------------------------------------------------|
+| GITHUB_TOKEN       | GitHub token for API access                      |
+| OPENAI_API_KEY     | OpenAI API key (optional)                        |
+| ANTHROPIC_API_KEY  | Anthropic API key (optional)                     |
+| OPENROUTER_API_KEY | OpenRouter API key (required)                    |
+| COMMENT_ON_PR      | Set to 'true' to post comments on PRs            |
+| USE_GPT4           | Set to 'true' to use GPT-4 for extra-large PRs   |
 
 ---
 
