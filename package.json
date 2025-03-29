@@ -15,7 +15,7 @@
     "model:list": "node src/models/list-models.js",
     "model:phi": "node src/models/test-phi.js",
     "model:mistral": "node src/models/test-gpt.js",
-    "model:gemini": "node src/models/test-claude.js",
+    "model:gemini": "node src/models/test-gemini.js",
     "model:llama": "node src/models/test-llama.js",
     "model:deepseek": "node src/models/test-deepseek.js",
     

@@ -144,8 +144,10 @@ export async function callModelWithPrompt(model, systemPrompt, userPrompt) {
   console.log(`\n🚀 Testing model: ${model}`);
   
   try {
+    // Add route: "fallback" option to use a different model if the requested one has payment issues
     const requestBody = {
       model: model,
+      route: "fallback",  // Enable fallback to help with payment-related errors
       messages: [
         {
           role: 'system',
@@ -157,11 +159,10 @@ export async function callModelWithPrompt(model, systemPrompt, userPrompt) {
         }
       ],
       temperature: 0.3,
-      max_tokens: 2000
+      max_tokens: 1500  // Reduced from 2000 to avoid token limit errors
     };
     
     console.log(`📤 Sending request to OpenRouter API with model: ${model}`);
-    console.log(`Request body structure: ${JSON.stringify(requestBody, null, 2)}`);
     
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -179,9 +180,50 @@ export async function callModelWithPrompt(model, systemPrompt, userPrompt) {
     console.log(`📥 Raw API response for ${model}:`);
     console.log(responseText);
     
+    // Check for rate limit errors
+    if (response.status === 429) {
+      console.log(`⚠️ Rate limit exceeded for model ${model}. Waiting before retry...`);
+      
+      // Try to parse response to get retry-after info
+      try {
+        const errorData = JSON.parse(responseText);
+        const retryDelay = errorData.error?.metadata?.raw ? 
+          JSON.parse(errorData.error.metadata.raw)?.error?.details?.find(d => d['@type'] === 'type.googleapis.com/google.rpc.RetryInfo')?.retryDelay : null;
+        
+        if (retryDelay) {
+          const delaySeconds = parseInt(retryDelay.replace('s', '')) || 60;
+          console.log(`⏱️ API suggests waiting ${delaySeconds} seconds before retry`);
+          
+          // Return error with retry info
+          return {
+            success: false,
+            error: `Rate limit exceeded. Retry after ${delaySeconds} seconds.`,
+            retryAfter: delaySeconds
+          };
+        }
+      } catch (e) {
+        console.error("Error parsing rate limit response:", e.message);
+      }
+      
+      return {
+        success: false,
+        error: `Rate limit exceeded for ${model}. Try again later.`
+      };
+    }
+    
+    // Handle other errors
     if (!response.ok) {
       console.error(`❌ API error with model ${model}: ${response.status} ${response.statusText}`);
-      console.error(`Error details: ${responseText}`);
+      
+      // Check if it's a payment required error and suggest using :free suffix
+      if (response.status === 402 && !model.includes(':free')) {
+        console.error(`💰 This appears to be a paid model. Try adding ':free' to the model name or choose a different model.`);
+        return {
+          success: false,
+          error: `Payment required for ${model}. Try adding ':free' to the model name or choose a different model.`
+        };
+      }
+      
       return {
         success: false,
         error: `${response.status} ${response.statusText}: ${responseText}`
@@ -189,7 +231,25 @@ export async function callModelWithPrompt(model, systemPrompt, userPrompt) {
     }
     
     // Parse the response text
-    const data = JSON.parse(responseText);
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (e) {
+      console.error(`Failed to parse JSON response: ${e.message}`);
+      return {
+        success: false,
+        error: `Failed to parse response: ${e.message}`
+      };
+    }
+    
+    // Validate the response has choices
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      console.error(`❌ Invalid response format from ${model}: Missing choices array or message`);
+      return {
+        success: false,
+        error: `Invalid response format: Missing choices or message. Raw response: ${responseText}`
+      };
+    }
     
     // Check which model actually responded
     const actualModel = data.model || model;
