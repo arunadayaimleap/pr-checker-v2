@@ -35,29 +35,49 @@ jobs:
         run: |
           npm ci --prefer-offline --no-audit
 
-      - name: 📝 Create .env file
+      - name: 📝 Create multiple .env files
         run: |
-          cd pr-checker
-          echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" > .env
-          echo "GITHUB_TOKEN=${{ secrets.GH_TOKEN }}" >> .env
-          ls -la # List files to ensure .env was created
-          echo "Created .env file in $(pwd)"
+          # Create .env in the main directory
+          echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" > pr-checker/.env
+          echo "GITHUB_TOKEN=${{ secrets.GH_TOKEN }}" >> pr-checker/.env
+          
+          # Create .env in src directory also
+          echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" > pr-checker/src/.env
+          echo "GITHUB_TOKEN=${{ secrets.GH_TOKEN }}" >> pr-checker/src/.env
+          
+          echo "Created .env files in multiple locations"
+          find pr-checker -name ".env" | xargs ls -la
 
-      - name: 🔍 Debug Environment
+      - name: 🔧 Create custom script to set env vars
         run: |
-          cd pr-checker
-          echo "Checking environment..."
-          echo "OPENROUTER_API_KEY exists: ${{ secrets.OPENROUTER_API_KEY != '' }}"
-          echo "GITHUB_TOKEN exists: ${{ secrets.GH_TOKEN != '' }}"
-          echo "Files in current directory:"
-          ls -la
-          echo "Content of .env file (hiding keys):"
-          cat .env | sed 's/=.*/=***/'
+          cat > pr-checker/run.js <<EOF
+          // Directly set environment variables before requiring the main file
+          process.env.OPENROUTER_API_KEY = "${{ secrets.OPENROUTER_API_KEY }}";
+          process.env.GITHUB_TOKEN = "${{ secrets.GH_TOKEN }}";
+          
+          // Log environment variables for debugging
+          console.log('Environment variables directly set in run.js:');
+          console.log('- OPENROUTER_API_KEY exists:', Boolean(process.env.OPENROUTER_API_KEY));
+          console.log('- GITHUB_TOKEN exists:', Boolean(process.env.GITHUB_TOKEN));
+          
+          // Import and run the main file
+          import('./src/index.js').catch(err => {
+            console.error('Error importing index.js:', err);
+            process.exit(1);
+          });
+          EOF
+          
+          echo "Created custom run.js script in pr-checker directory"
 
-      - name: 🧠 Run PR Checker with direct key
+      - name: 🧠 Run PR Checker with custom script
+        working-directory: pr-checker
         run: |
-          cd pr-checker
-          OPENROUTER_API_KEY="${{ secrets.OPENROUTER_API_KEY }}" GITHUB_TOKEN="${{ secrets.GH_TOKEN }}" node src/index.js
+          # Export env vars directly to the shell
+          export OPENROUTER_API_KEY="${{ secrets.OPENROUTER_API_KEY }}"
+          export GITHUB_TOKEN="${{ secrets.GH_TOKEN }}"
+          
+          # Run our custom script that sets env vars programmatically
+          node run.js
 
       - name: 📤 Upload PR Analysis Results
         uses: actions/upload-artifact@v4
