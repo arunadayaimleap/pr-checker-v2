@@ -1,28 +1,40 @@
-name: PR Checker
+name: 🧠 Visual PR Review Bot
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    
+
 jobs:
-  analyze-pr:
+  review:
+    name: 🧠 Analyze PR and Post Diagrams
     runs-on: ubuntu-latest
+
+    env:
+      CHATGPT_API_KEY: ${{ secrets.CHATGPT_API_KEY }}
+      GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
     steps:
-      - uses: actions/checkout@v3
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v3
         with:
-          fetch-depth: 0
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+          fetch-depth: 0  # Fetch all history for proper diff analysis
+
+      - name: 📦 Clone Visual PR Checker
+        run: |
+          git clone https://github.com/arunadayaimleap/pr-checker-v2.git pr-checker
+          cd pr-checker
+          npm install
+
+      - name: 🧠 Run PR Checker
+        run: |
+          cd pr-checker
+          node src/index.js
+
+      - name: 📤 Upload PR Analysis Results
+        uses: actions/upload-artifact@v4
         with:
-          node-version: '18'
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Run PR Checker
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          COMMENT_ON_PR: 'true'
-        run: npm start
+          name: pr-analysis-results
+          path: |
+            pr-checker/results/**/*.md
+            pr-checker/results/**/*.png
+            pr-checker/pr-review-output.md
