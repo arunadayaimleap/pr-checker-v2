@@ -39,6 +39,9 @@ async function testOpenRouter() {
     
     // Second prompt - schema generation
     console.log("Running schema generation with fallback mechanism...");
+    console.log(`Primary model: ${MODEL_FALLBACKS.PRIMARY}`);
+    console.log(`Fallback models: ${MODEL_FALLBACKS.FALLBACKS.join(', ')}`);
+    
     const schemaResult = await callModelWithFallbacks(
       MODEL_FALLBACKS.PRIMARY,
       MODEL_FALLBACKS.FALLBACKS,

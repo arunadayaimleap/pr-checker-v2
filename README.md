@@ -202,12 +202,8 @@ Note: When running locally, the PR comment won't be posted to GitHub, but you'll
 This PR Checker uses a robust model fallback system:
 
 1. **DeepSeek Chat v3** (Primary model) - A powerful open-source model for code analysis
-2. **Microsoft Phi-3 Medium** (First fallback) - Specialized for code understanding
-3. **Google Gemini 2.5 Pro** (Second fallback) - Strong reasoning and code analysis capabilities
-4. **Meta Llama 3** (Third fallback) - Solid open-source model for code review
-5. **Mistral Small** (Fourth fallback) - Efficient model with good code comprehension
-6. **OpenAI GPT-3.5 Turbo** (Fifth fallback) - Reliable general-purpose model
-7. **Qwen 2.5 72B** (Final fallback) - Large open-source model with extensive capabilities
+2. **Meta Llama 3** (First fallback) - Solid open-source model for code review
+3. **Mistral Small** (Second fallback) - Efficient model with good code comprehension
 
 This approach ensures reliable code analysis even when specific models have rate limits or availability issues.
 
@@ -221,11 +217,8 @@ npm run test-openrouter
 
 # Test specific models
 npm run test-deepseek
-npm run test-phi
 npm run test-llama
-npm run test-gemini
-npm run test-gpt
-npm run test-claude
+npm run model:mistral
 
 # List all available models from OpenRouter
 npm run list-models

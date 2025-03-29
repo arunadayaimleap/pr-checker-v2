@@ -14,7 +14,9 @@ async function processPR() {
     // Create output directory
     const outputDir = await createOutputDir();
     
-    console.log('🧠 Using DeepSeek as primary model with fallbacks...');
+    console.log('🧠 Using DeepSeek as primary model with Llama 3 and Mistral Small as fallbacks...');
+    console.log(`Primary model: ${MODEL_FALLBACKS.PRIMARY}`);
+    console.log(`Fallback models: ${MODEL_FALLBACKS.FALLBACKS.join(', ')}`);
     
     // Code review with models
     console.log('📝 Generating code review...');
@@ -68,9 +70,13 @@ async function processPR() {
       );
     }
     
+    console.log('✅ PR processing completed successfully');
+    
   } catch (error) {
     console.error('❌ PR processing failed:');
     console.error(error);
     process.exit(1);
   }
 }
+
+export default processPR;

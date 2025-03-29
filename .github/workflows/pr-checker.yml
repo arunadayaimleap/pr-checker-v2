@@ -23,9 +23,6 @@ jobs:
       - name: Run PR Checker
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           COMMENT_ON_PR: 'true'
-          USE_GPT4: ${{ github.event.pull_request.additions + github.event.pull_request.deletions > 500 }}
         run: npm start
