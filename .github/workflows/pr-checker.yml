@@ -83,9 +83,6 @@ jobs:
           export REPO_NAME="${{ github.repository }}"
           export IMGBB_API_KEY="${{ secrets.IMGBB_API_KEY }}"
           
-          # Create public directory for diagrams
-          mkdir -p public
-          
           # Run our custom script
           node run.js
 
@@ -95,16 +92,4 @@ jobs:
           name: pr-analysis-results
           path: |
             pr-checker/results/**/*.md
-            pr-checker/results/**/*.png
-            pr-checker/public/**/*.png
             pr-checker/pr-review-output.md
-
-      - name: 🌐 Store diagram images as artifacts only
-        run: |
-          # Copy diagrams to public directory if not already there
-          mkdir -p pr-checker/public
-          find pr-checker/results -name "*.png" -exec cp {} pr-checker/public/ \;
-          
-          # List all diagram files copied to public
-          echo "Diagram files available as artifacts:"
-          find pr-checker/public -name "*.png" -ls

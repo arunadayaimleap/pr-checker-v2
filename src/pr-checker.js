@@ -227,21 +227,28 @@ async function processAndRenderDiagrams(response, diagramType, outputDir, prNumb
       if (uploadResult.success) {
         console.log(`✅ Successfully uploaded to ImgBB: ${uploadResult.url}`);
         renderResult.imgbbUrl = uploadResult.displayUrl;
-      } else {
-        console.error(`❌ Failed to upload to ImgBB: ${uploadResult.error}`);
-      }
-      
-      // Save first diagram section for combined comment
-      if (i === 0) {
-        // Get diagram explanation text (look for text after the first mermaid block)
-        const diagramText = extractTextAfterMermaid(response.content, diagramCode);
         
-        // Use ImgBB URL if available, otherwise use local path
-        const imageUrl = renderResult.imgbbUrl || renderResult.pngPath;
-        
-        result.firstDiagramSection = `![${diagramFilename}](${imageUrl})
+        // Save first diagram section for combined comment
+        if (i === 0) {
+          // Get diagram explanation text (look for text after the first mermaid block)
+          const diagramText = extractTextAfterMermaid(response.content, diagramCode);
+          
+          // Always use ImgBB URL for consistent display in comments
+          result.firstDiagramSection = `![${diagramFilename}](${uploadResult.displayUrl})
 
 ${diagramText}`;
+        }
+      } else {
+        console.error(`❌ Failed to upload to ImgBB: ${uploadResult.error}`);
+        // If ImgBB upload fails, we'll fall back to showing the mermaid code block
+        if (i === 0) {
+          const diagramText = extractTextAfterMermaid(response.content, diagramCode);
+          result.firstDiagramSection = `\`\`\`mermaid
+${diagramCode}
+\`\`\`
+
+${diagramText}`;
+        }
       }
     } else {
       console.error(`❌ Failed to render ${diagramType} diagram ${i+1}: ${renderResult.error}`);
@@ -259,6 +266,7 @@ ${diagramText}`;
       const imageMarkdown = `![${diagramType.toLowerCase()}-${i+1}](${renderResult.imgbbUrl})`;
       processedMarkdown = processedMarkdown.replace(mermaidBlock, imageMarkdown);
     }
+    // If upload failed, keep the original mermaid block
   }
   
   const processedPath = path.join(outputDir, `processed-${diagramType.toLowerCase()}.md`);
