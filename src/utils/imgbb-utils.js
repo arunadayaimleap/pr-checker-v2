@@ -26,8 +26,6 @@ export async function uploadImageToImgBB(imagePath, name) {
       formData.append('name', name);
     }
 
-    console.log(`Uploading image ${name || path.basename(imagePath)} to ImgBB...`);
-    
     const response = await fetch(`https://api.imgbb.com/1/upload?key=${process.env.IMGBB_API_KEY}`, {
       method: 'POST',
       body: formData
@@ -44,21 +42,10 @@ export async function uploadImageToImgBB(imagePath, name) {
       throw new Error(`ImgBB upload failed: ${data.error?.message || 'Unknown error'}`);
     }
 
-    // Log the actual raw response to help debug URL issues
-    console.log(`ImgBB raw response for ${name}: ${JSON.stringify(data)}`);
-    
-    // Get all possible URLs from response for logging
-    console.log(`URL options from ImgBB response:`);
-    console.log(`- url: ${data.data.url}`);
-    console.log(`- display_url: ${data.data.display_url}`);
-    if (data.data.image) console.log(`- image.url: ${data.data.image.url}`);
-    if (data.data.thumb) console.log(`- thumb.url: ${data.data.thumb.url}`);
-
-    // Return the simplest possible successful response
+    // Simply return the raw URL from the API response without any processing
     return {
       success: true,
-      // For now, we'll use display_url as the primary URL
-      url: data.data.display_url
+      url: data.data.url
     };
   } catch (error) {
     console.error(`❌ Failed to upload image to ImgBB: ${error.message}`);
