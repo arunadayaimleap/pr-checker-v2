@@ -42,17 +42,33 @@ export async function uploadImageToImgBB(imagePath, name) {
       throw new Error(`ImgBB upload failed: ${data.error?.message || 'Unknown error'}`);
     }
 
-    // Log the response structure to help debug
-    console.log(`ImgBB response structure for ${name || path.basename(imagePath)}:`);
-    console.log(`URL: ${data.data.url}`);
-    console.log(`Display URL: ${data.data.display_url}`);
+    // Log the complete response data for debugging
+    console.log(`ImgBB complete response for ${name}:`, JSON.stringify(data.data, null, 2));
     
-    // Always return consistent data
+    // Check if we have a valid direct image URL - that's the one we want to use
+    let imageUrl = '';
+    
+    // Try different fields that might contain the direct URL
+    if (data.data.image && data.data.image.url) {
+      imageUrl = data.data.image.url;
+      console.log(`Using image.url: ${imageUrl}`);
+    } else if (data.data.thumb && data.data.thumb.url) {
+      imageUrl = data.data.thumb.url;
+      console.log(`Using thumb.url: ${imageUrl}`);
+    } else if (data.data.url) {
+      imageUrl = data.data.url;
+      console.log(`Using data.url: ${imageUrl}`);
+    } else if (data.data.display_url) {
+      imageUrl = data.data.display_url;
+      console.log(`Using display_url: ${imageUrl}`);
+    }
+    
     return {
       success: true,
-      url: data.data.url,
+      url: imageUrl || data.data.url,
       displayUrl: data.data.display_url,
-      deleteUrl: data.data.delete_url
+      deleteUrl: data.data.delete_url,
+      rawResponse: data.data // Include the raw response for debugging
     };
   } catch (error) {
     console.error(`❌ Failed to upload image to ImgBB: ${error.message}`);

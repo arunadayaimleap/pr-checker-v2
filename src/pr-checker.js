@@ -226,22 +226,35 @@ async function processAndRenderDiagrams(response, diagramType, outputDir, prNumb
       
       if (uploadResult.success) {
         console.log(`✅ Successfully uploaded to ImgBB: ${uploadResult.url}`);
-        console.log(`📊 ImgBB response - Display URL: ${uploadResult.displayUrl}`);
         
-        // Store both URLs for safety
-        renderResult.imgbbUrl = uploadResult.url;
-        renderResult.imgbbDisplayUrl = uploadResult.displayUrl;
+        // Try to get the correct image URL
+        let bestImageUrl = uploadResult.url;
+        
+        // If the URL contains strange characters, try to use the raw response to find a better URL
+        if (uploadResult.rawResponse) {
+          console.log('Examining raw response for better image URL');
+          
+          // Try different possible fields
+          if (uploadResult.rawResponse.image && uploadResult.rawResponse.image.url) {
+            bestImageUrl = uploadResult.rawResponse.image.url;
+            console.log(`Using image.url from raw response: ${bestImageUrl}`);
+          } else if (uploadResult.rawResponse.direct_link) {
+            bestImageUrl = uploadResult.rawResponse.direct_link;
+            console.log(`Using direct_link from raw response: ${bestImageUrl}`);
+          }
+        }
+        
+        // Store the best URL for this render result
+        renderResult.imgbbUrl = bestImageUrl;
         
         // Save first diagram section for combined comment
         if (i === 0) {
           // Get diagram explanation text (look for text after the first mermaid block)
           const diagramText = extractTextAfterMermaid(response.content, diagramCode);
           
-          // Try direct URL first
-          const imageUrl = uploadResult.url;
-          console.log(`📋 Using direct URL for ${diagramType} diagram: ${imageUrl}`);
-          
-          result.firstDiagramSection = `![${diagramType.toLowerCase()}-diagram](${imageUrl})
+          // Use the best URL determined above
+          console.log(`Using best URL for ${diagramType} diagram: ${bestImageUrl}`);
+          result.firstDiagramSection = `![${diagramType.toLowerCase()}-diagram](${bestImageUrl})
 
 ${diagramText}`;
         }
