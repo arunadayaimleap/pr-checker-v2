@@ -10,7 +10,11 @@
     "test-modules": "node src/tests/simple-module-test.js",
     "test-api-direct": "node src/tests/simple-api-test.js",
     "test-code-analysis": "node src/tests/code-analysis-test.js",
-    "test-phi3-security": "node src/tests/phi3-code-review.js"
+    "test-phi3-security": "node src/tests/phi3-code-review.js",
+    "test-gpt": "node src/models/test-gpt.js",
+    "test-claude": "node src/models/test-claude.js",
+    "test-llama": "node src/models/test-llama.js",
+    "test-phi": "node src/models/test-phi.js"
   },
   "dependencies": {
     "axios": "^1.4.0",
