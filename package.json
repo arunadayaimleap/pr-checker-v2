@@ -11,12 +11,22 @@
     "test-api-direct": "node src/tests/simple-api-test.js",
     "test-code-analysis": "node src/tests/code-analysis-test.js",
     "test-phi3-security": "node src/tests/phi3-code-review.js",
-    "test-gpt": "node src/models/test-gpt.js",
-    "test-claude": "node src/models/test-claude.js",
-    "test-llama": "node src/models/test-llama.js",
-    "test-phi": "node src/models/test-phi.js",
-    "list-models": "node src/models/list-models.js",
-    "test-deepseek": "node src/models/test-deepseek.js"
+    
+    "model:list": "node src/models/list-models.js",
+    "model:phi": "node src/models/test-phi.js",
+    "model:mistral": "node src/models/test-gpt.js",
+    "model:gemini": "node src/models/test-claude.js",
+    "model:llama": "node src/models/test-llama.js",
+    "model:deepseek": "node src/models/test-deepseek.js",
+    
+    "compare:all": "node src/commands/test-openrouter.js",
+    
+    "legacy:test-gpt": "node src/models/test-gpt.js",
+    "legacy:test-claude": "node src/models/test-claude.js",
+    "legacy:test-llama": "node src/models/test-llama.js",
+    "legacy:test-phi": "node src/models/test-phi.js",
+    "legacy:list-models": "node src/models/list-models.js",
+    "legacy:test-deepseek": "node src/models/test-deepseek.js"
   },
   "dependencies": {
     "axios": "^1.4.0",
