@@ -1,6 +1,15 @@
-const fs = require('fs-extra');
-const path = require('path');
-const axios = require('axios');
+import fs from 'fs-extra';
+import path from 'path';
+import axios from 'axios';
+
+// Dynamic import for mock data (only needed in local testing)
+async function getMockData() {
+  if (!process.env.GITHUB_EVENT_PATH) {
+    const { createMockPREvent } = await import('../utils/mockPRData.js');
+    return createMockPREvent();
+  }
+  return null;
+}
 
 /**
  * Formats the PR comment with all analysis results
@@ -417,7 +426,7 @@ function formatSecuritySection(securityIssues) {
  * @param {string} comment - Comment markdown
  * @returns {Promise<void>}
  */
-async function postComment(comment) {
+export async function postComment(comment) {
   try {
     const token = process.env.GITHUB_TOKEN;
     if (!token) {
@@ -433,8 +442,8 @@ async function postComment(comment) {
     } else {
       // Running locally, use mock data
       console.log('📌 Using mock PR data for local testing');
-      const { createMockPREvent } = require('../utils/mockPRData');
-      eventData = createMockPREvent();
+      const mockData = await getMockData();
+      eventData = mockData;
     }
     
     // Extract the repository and PR information
@@ -468,7 +477,5 @@ async function postComment(comment) {
   }
 }
 
-module.exports = {
-  formatComment,
-  postComment
-};
+// Export formatComment for backward compatibility
+export { formatComment };
