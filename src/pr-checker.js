@@ -226,17 +226,15 @@ async function processAndRenderDiagrams(response, diagramType, outputDir, prNumb
       
       if (uploadResult.success) {
         console.log(`✅ Successfully uploaded to ImgBB: ${uploadResult.url}`);
-        renderResult.imgbbUrl = uploadResult.displayUrl;
+        renderResult.imgbbUrl = uploadResult.url; // Use direct URL instead of display URL
         
         // Save first diagram section for combined comment
         if (i === 0) {
           // Get diagram explanation text (look for text after the first mermaid block)
           const diagramText = extractTextAfterMermaid(response.content, diagramCode);
           
-          // Make image max width and clickable to ImgBB
-          const imageMarkdown = `<a href="${uploadResult.url}" target="_blank"><img src="${uploadResult.displayUrl}" alt="${diagramType.toLowerCase()}-diagram" style="max-width: 100%;" /></a>`;
-          
-          result.firstDiagramSection = `${imageMarkdown}
+          // Use standard markdown with direct URL
+          result.firstDiagramSection = `![${diagramType.toLowerCase()}-diagram](${uploadResult.url})
 
 ${diagramText}`;
         }
@@ -265,8 +263,8 @@ ${diagramText}`;
     const renderResult = renderResults[i];
     
     if (renderResult && renderResult.success && renderResult.imgbbUrl) {
-      // Make image max width and clickable to ImgBB
-      const imageMarkdown = `<a href="${renderResult.imgbbUrl}" target="_blank"><img src="${renderResult.imgbbUrl}" alt="${diagramType.toLowerCase()}-diagram-${i+1}" style="max-width: 100%;" /></a>`;
+      // Use simple markdown format with direct URL
+      const imageMarkdown = `![${diagramType.toLowerCase()}-diagram-${i+1}](${renderResult.imgbbUrl})`;
       processedMarkdown = processedMarkdown.replace(mermaidBlock, imageMarkdown);
     }
   }
