@@ -34,12 +34,13 @@ async function processPR(formattedPRContent, prNumber) {
       formattedPRContent
     );
     
-    // Save code review results
+    // Save results but don't log raw API response
     await saveResults(
       'primary-with-fallbacks', 
       'code-review', 
       reviewResponse, 
-      outputDir
+      outputDir,
+      false // Set to false to avoid logging raw API response
     );
     
     // Add comment for code review - always post if GITHUB_TOKEN exists
@@ -61,14 +62,16 @@ async function processPR(formattedPRContent, prNumber) {
           MODEL_FALLBACKS.PRIMARY,
           MODEL_FALLBACKS.FALLBACKS,
           SYSTEM_PROMPTS.mermaidSchema,
-          USER_PROMPTS.mermaidSchema
+          USER_PROMPTS.mermaidSchema,
+          false // Add parameter to avoid logging raw API response
         );
         
         await saveResults(
           'primary-with-fallbacks', 
           'mermaid-schema', 
           response, 
-          outputDir
+          outputDir,
+          false // Set to false to avoid logging raw API response
         );
         
         return response;
@@ -81,14 +84,16 @@ async function processPR(formattedPRContent, prNumber) {
           MODEL_FALLBACKS.PRIMARY,
           MODEL_FALLBACKS.FALLBACKS,
           SYSTEM_PROMPTS.sequenceDiagram,
-          USER_PROMPTS.sequenceDiagram
+          USER_PROMPTS.sequenceDiagram,
+          false // Add parameter to avoid logging raw API response
         );
         
         await saveResults(
           'primary-with-fallbacks', 
           'sequence-diagram', 
           response, 
-          outputDir
+          outputDir,
+          false // Set to false to avoid logging raw API response
         );
         
         return response;
@@ -147,7 +152,7 @@ ${sequenceResult.firstDiagramSection || '*No sequence diagram could be generated
     
   } catch (error) {
     console.error('❌ PR processing failed:');
-    console.error(error);
+    console.error(error.message || error); // Only log error message, not full stack trace
     process.exit(1);
   }
 }

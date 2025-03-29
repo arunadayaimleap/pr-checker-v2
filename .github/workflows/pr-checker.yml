@@ -101,15 +101,12 @@ jobs:
             pr-checker/public/**/*.png
             pr-checker/pr-review-output.md
 
-      - name: 🌐 Commit diagram images to repository
+      - name: 🌐 Store diagram images as artifacts only
         run: |
           # Copy diagrams to public directory if not already there
           mkdir -p pr-checker/public
           find pr-checker/results -name "*.png" -exec cp {} pr-checker/public/ \;
           
-          # Commit the diagram images
-          git config --global user.name "GitHub Actions Bot"
-          git config --global user.email "actions@github.com"
-          git add pr-checker/public/
-          git commit -m "Add PR analysis diagrams" || echo "No changes to commit"
-          git push
+          # List all diagram files copied to public
+          echo "Diagram files available as artifacts:"
+          find pr-checker/public -name "*.png" -ls
