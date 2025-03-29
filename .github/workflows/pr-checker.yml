@@ -83,8 +83,9 @@ jobs:
           export REPO_NAME="${{ github.repository }}"
           export IMGBB_API_KEY="${{ secrets.IMGBB_API_KEY }}"
           
-          # Run our custom script
-          node run.js
+          # Pass the GitHub workspace to the script as a parameter
+          # This ensures the app can access the PR files
+          node run.js "$GITHUB_WORKSPACE"
 
       - name: 📤 Upload PR Analysis Results
         uses: actions/upload-artifact@v4
