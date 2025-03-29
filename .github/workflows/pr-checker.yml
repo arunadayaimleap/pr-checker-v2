@@ -36,7 +36,7 @@ jobs:
         run: |
           npm ci --no-audit
 
-      - name: 📝 Create multiple .env files
+      - name: 📝 Create .env file
         run: |
           # Create .env in the main directory
           echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" > pr-checker/.env
@@ -52,28 +52,64 @@ jobs:
           echo "REPO_NAME=${{ github.repository }}" >> pr-checker/src/.env
           echo "IMGBB_API_KEY=${{ secrets.IMGBB_API_KEY }}" >> pr-checker/src/.env
           
-          echo "Created .env files"
+          echo "Created .env files with PR number ${{ github.event.pull_request.number }}"
 
-      - name: 🔧 Create custom script to set env vars
+      - name: 🔍 Create PR-specific script
         run: |
-          cat > pr-checker/run.js <<EOF
-          // Directly set environment variables before requiring the main file
-          process.env.OPENROUTER_API_KEY = "${{ secrets.OPENROUTER_API_KEY }}";
-          process.env.GITHUB_TOKEN = "${{ secrets.GH_TOKEN }}";
-          process.env.PR_NUMBER = "${{ github.event.pull_request.number }}";
-          process.env.REPO_NAME = "${{ github.repository }}";
-          process.env.IMGBB_API_KEY = "${{ secrets.IMGBB_API_KEY }}";
-          
-          // Import and run the main file
-          import('./src/index.js').catch(err => {
-            console.error('Error importing index.js:', err);
-            process.exit(1);
-          });
+          # Create a direct script that just calls our run.js file with proper params
+          cat > pr-checker/direct-pr.js <<EOF
+          import { getPRDetails } from './src/utils/github-utils.js';
+          import processPR from './src/pr-checker.js';
+
+          async function main() {
+            try {
+              console.log('🚀 Direct PR Analysis Starting...');
+              
+              const prNumber = ${{ github.event.pull_request.number }};
+              const repoName = '${{ github.repository }}';
+              
+              console.log(\`Analyzing PR #\${prNumber} from \${repoName}\`);
+              
+              // Get PR details from GitHub API
+              const prDetails = await getPRDetails(prNumber, repoName);
+              
+              console.log(\`Found \${prDetails.changedFiles.length} changed files in PR\`);
+              console.log(\`Files: \${prDetails.changedFiles.map(f => f.path).join(', ')}\`);
+              
+              // Format PR content
+              const formattedPRContent = \`
+          # PR #\${prNumber}: \${prDetails.title}
+
+          \${prDetails.description}
+
+          ## Changed Files:
+          \${prDetails.changedFiles.map(file => \`- \${file.path} (\${file.status})\`).join('\\n')}
+
+          ## File Changes:
+          \${prDetails.changedFiles.map(file => \`
+          ### \${file.path} (\${file.status})
+          \\\`\\\`\\\`\${file.extension || 'diff'}
+          \${file.diff || file.content || 'No content available'}
+          \\\`\\\`\\\`
+          \`).join('\\n')}
+          \`;
+              
+              // Process the PR
+              await processPR(formattedPRContent, prNumber);
+              
+              console.log('✅ Direct PR Analysis completed successfully');
+            } catch (error) {
+              console.error('❌ Error in direct PR analysis:', error);
+              process.exit(1);
+            }
+          }
+
+          main();
           EOF
           
-          echo "Created custom run.js script"
+          echo "Created direct PR analysis script"
 
-      - name: 🧠 Run PR Checker with custom script
+      - name: 🧠 Run PR Checker
         working-directory: pr-checker
         run: |
           # Export env vars directly to the shell
@@ -83,9 +119,8 @@ jobs:
           export REPO_NAME="${{ github.repository }}"
           export IMGBB_API_KEY="${{ secrets.IMGBB_API_KEY }}"
           
-          # Pass the GitHub workspace to the script as a parameter
-          # This ensures the app can access the PR files
-          node run.js "$GITHUB_WORKSPACE"
+          # Run our direct PR script - no need to pass parameters
+          node direct-pr.js
 
       - name: 📤 Upload PR Analysis Results
         uses: actions/upload-artifact@v4
