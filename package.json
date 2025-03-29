@@ -15,13 +15,16 @@
     "test-llama": "node src/models/test-llama.js",
     "test-mistral": "node src/models/test-gpt.js",
     "test-mermaid": "node src/models/test-mermaid.js",
+    "test-sequence": "node src/models/test-sequence.js",
     "test-mermaid-render": "node src/tests/test-mermaid-render.js",
+    "test-sequence-render": "node src/tests/test-sequence-render.js",
     
     "model:list": "node src/models/list-models.js",
     "model:deepseek": "node src/models/test-deepseek.js",
     "model:llama": "node src/models/test-llama.js",
     "model:mistral": "node src/models/test-gpt.js",
     "model:mermaid": "node src/models/test-mermaid.js",
+    "model:sequence": "node src/models/test-sequence.js",
     
     "compare:all": "node src/models/test-openrouter.js",
     

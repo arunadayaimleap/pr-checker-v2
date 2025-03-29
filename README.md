@@ -204,6 +204,7 @@ The PR Checker generates Mermaid diagrams to visualize:
 1. **Component Relationships**: Shows how different files and components interact with each other
 2. **Data Flow**: Illustrates how data moves through the system
 3. **Architecture Overview**: Provides a high-level view of the system architecture
+4. **Sequence Diagrams**: Shows the order of operations and interactions between components over time
 
 These diagrams are automatically rendered as images and included in the PR comments.
 
@@ -212,8 +213,11 @@ These diagrams are automatically rendered as images and included in the PR comme
 To test the Mermaid diagram generation and rendering:
 
 ```bash
-# Test Mermaid diagram generation using AI models
+# Test schema diagram generation using AI models
 npm run test-mermaid
+
+# Test sequence diagram generation
+npm run test-sequence
 
 # Test Mermaid rendering functionality
 npm run test-mermaid-render

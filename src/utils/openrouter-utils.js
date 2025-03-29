@@ -89,7 +89,8 @@ export const CHANGED_FILES = [
 export const SYSTEM_PROMPTS = {
   codeReview: 'You are a senior software developer who specializes in code review. Provide a detailed, well-formatted markdown response with headings, bullet points, and code examples where appropriate.',
   schemaDesign: 'You are a software architect who specializes in visualizing system components. Generate a clear Mermaid diagram showing relationships between components. Wrap your diagram in ```mermaid code blocks and follow it with an explanation of the architecture.',
-  mermaidSchema: 'You are a diagramming expert. Create a Mermaid diagram that visualizes the structure and relationships between components. Your diagram must be in correct Mermaid syntax and wrapped in ```mermaid code blocks. After the diagram, explain each component and relationship.'
+  mermaidSchema: 'You are a diagramming expert. Create a Mermaid diagram that visualizes the structure and relationships between components. Your diagram must be in correct Mermaid syntax and wrapped in ```mermaid code blocks. After the diagram, explain each component and relationship.',
+  sequenceDiagram: 'You are a sequence diagram expert. Generate a Mermaid sequence diagram showing how components interact over time. Focus on method calls, data flow, and the order of operations. Your diagram must use correct Mermaid syntax and be wrapped in ```mermaid code blocks. After the diagram, explain the flow of operations.'
 };
 
 // The user prompts
@@ -150,6 +151,37 @@ Requirements:
 4. Label each connection to describe the relationship
 5. Wrap the diagram in \`\`\`mermaid code blocks
 6. After the diagram, explain the architecture in 3-4 sentences
+
+Your entire response should be valid markdown.`,
+
+  sequenceDiagram: `Generate a Mermaid sequence diagram that shows the interaction between these components:
+
+${CHANGED_FILES.map(file => `- **${file.name}** (${file.type}): ${file.description}`).join('\n')}
+
+Requirements:
+1. Use Mermaid sequence diagram syntax
+2. Show a typical user profile operation flow
+3. Include all components and their interactions
+4. Show method calls between components
+5. Display the flow of data
+6. Wrap the diagram in \`\`\`mermaid code blocks
+7. After the diagram, explain the sequence of operations in 3-4 sentences
+
+Example Mermaid sequence diagram syntax:
+\`\`\`mermaid
+sequenceDiagram
+    participant Client
+    participant ServiceA
+    participant ServiceB
+    participant Database
+    
+    Client->>ServiceA: request()
+    ServiceA->>ServiceB: processData()
+    ServiceB->>Database: query()
+    Database-->>ServiceB: results
+    ServiceB-->>ServiceA: processedData
+    ServiceA-->>Client: response
+\`\`\`
 
 Your entire response should be valid markdown.`
 };
