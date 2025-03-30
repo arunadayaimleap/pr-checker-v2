@@ -61,16 +61,12 @@ ${analysis.changedFiles.length > 0 ? `
 ${analysis.changedFiles.map(file => `- ${file.filename} (${file.status}: +${file.additions} -${file.deletions})`).join('\n')}
 ` : ''}
 
-${analysis.schemas && analysis.schemas.length > 0 ? `
-### 📊 Schema Diagrams
+${(analysis.schemas && analysis.schemas.length > 0) || (analysis.sequenceDiagrams && analysis.sequenceDiagrams.length > 0) ? `
+### 📊 Visual Diagrams
 
-${analysis.schemas.join('\n\n')}
-` : ''}
+${analysis.schemas && analysis.schemas.length > 0 ? analysis.schemas.join('\n\n') : ''}
 
-${analysis.sequenceDiagrams && analysis.sequenceDiagrams.length > 0 ? `
-### 🔄 Sequence Diagrams
-
-${analysis.sequenceDiagrams.join('\n\n')}
+${analysis.sequenceDiagrams && analysis.sequenceDiagrams.length > 0 ? analysis.sequenceDiagrams.join('\n\n') : ''}
 ` : ''}
 
 ${!analysis.success ? `
