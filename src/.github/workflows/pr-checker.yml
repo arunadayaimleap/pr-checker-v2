@@ -30,6 +30,8 @@ jobs:
       - name: 📦 Clone Visual PR Checker
         run: |
           git clone https://github.com/arunadayaimleap/pr-checker-v2.git pr-checker
+          cd pr-checker
+          git checkout working-1
 
       - name: 📦 Install Dependencies
         working-directory: pr-checker
