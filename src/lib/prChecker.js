@@ -27,6 +27,8 @@ export async function analyzePR(prData) {
         deletions: file.deletions,
         changes: file.changes
       })),
+      schemas: analysisResult.schemas,
+      sequenceDiagrams: analysisResult.sequenceDiagrams,
       success: analysisResult.success
     };
   } catch (error) {
@@ -35,6 +37,8 @@ export async function analyzePR(prData) {
       summary: "Failed to analyze the PR due to an error.",
       changedFiles: [],
       dependencies: [],
+      schemas: [],
+      sequenceDiagrams: [],
       success: false,
       error: error.message
     };
@@ -55,6 +59,18 @@ ${analysis.changedFiles.length > 0 ? `
 ### 🔧 Changed Files
 
 ${analysis.changedFiles.map(file => `- ${file.filename} (${file.status}: +${file.additions} -${file.deletions})`).join('\n')}
+` : ''}
+
+${analysis.schemas && analysis.schemas.length > 0 ? `
+### 📊 Schema Diagrams
+
+${analysis.schemas.join('\n\n')}
+` : ''}
+
+${analysis.sequenceDiagrams && analysis.sequenceDiagrams.length > 0 ? `
+### 🔄 Sequence Diagrams
+
+${analysis.sequenceDiagrams.join('\n\n')}
 ` : ''}
 
 ${!analysis.success ? `
