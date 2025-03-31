@@ -28,7 +28,8 @@
     
     "compare:all": "node src/models/test-openrouter.js",
     
-    "list-models": "node src/models/list-models.js"
+    "list-models": "node src/models/list-models.js",
+    "daily-report": "node src/daily-report.js"
   },
   "dependencies": {
     "axios": "^1.4.0",
